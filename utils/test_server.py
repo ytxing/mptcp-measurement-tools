@@ -22,6 +22,41 @@ args = parser.parse_args()
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+class BulkRequest():
+    def __init__(self, size, connection):
+        self.size = size
+        self.connection = connection
+
+    def run(self):
+        bulk = string_generator(size=self.size, chars=string.digits)
+        self.connection.sendall(bulk.encode(ENCODING))
+
+class PingRequest():
+    def __init__(self, connection):
+        self.size = 10
+        self.round = 10
+        self.connection = connection
+
+
+
+    def run(self):
+        total_time = 0
+        for i in range(round):
+            msg = string_generator(size=self.size, chars=string.digits)
+            start_time = datetime.datetime.now()
+            self.connection.sendall(msg.encode(ENCODING))
+            reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
+            end_time = datetime.datetime.now()
+            total_time += end_time - start_time
+
+
+class ClientRequest():
+    def __init__(self, request_type, block_size, id, msg_size):
+        self.connection = connection
+        self.client_address = client_address
+        self.id = id
+        self.msg_size = msg_size
+        self.delays = []
 
 class HandleClientConnectionThread(threading.Thread):
     """ Handle requests given by the client """
