@@ -19,35 +19,51 @@ parser.add_argument("-b", "--bytes", type=int, help="number of bytes to send and
 args = parser.parse_args()
 
 
+def MSoMprint(*args, **kwargs):
+   print('[MSoM] ', end='')
+   return print(*args, **kwargs)
+
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-class BulkRequest():
+class BulkRequestHandler():
     def __init__(self, size, connection):
         self.size = size
         self.connection = connection
 
-    def run(self):
+    def run(self) -> int:
         bulk = string_generator(size=self.size, chars=string.digits)
         self.connection.sendall(bulk.encode(ENCODING))
 
-class PingRequest():
-    def __init__(self, connection):
+class PingRequestHandler():
+    def __init__(self, connection :socket, id):
         self.size = 10
         self.round = 10
         self.connection = connection
+        self.id = id
+        # self.avg_round_trip_time = None
+        # self.total_round_trip_time = None
 
-
-
-    def run(self):
-        total_time = 0
+    def run(self) -> int:
+        '''
+        Ping: 1. the server sends one msg to the client
+              2. the server waits for reply
+              3. when receiving the reply form the client, go back to 1 and again
+        '''
+        # 如果出现异常考虑使用try语句
+        good = 1
         for i in range(round):
             msg = string_generator(size=self.size, chars=string.digits)
-            start_time = datetime.datetime.now()
             self.connection.sendall(msg.encode(ENCODING))
             reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
-            end_time = datetime.datetime.now()
-            total_time += end_time - start_time
+            if len(reply) != self.size:
+                good = -1
+                continue
+        
+        MSoMprint(self.id, ": Closing connection")
+        self.connection.close()
+        return good
+
 
 
 class ClientRequest():
@@ -71,7 +87,7 @@ class HandleClientConnectionThread(threading.Thread):
 
     def run(self):
         try:
-            print(self.id, ": Connection from", self.client_address)
+            MSoMprint(self.id, ": Connection from", self.client_address)
             start_time = None
             buffer_data = ""
 
@@ -97,9 +113,9 @@ class HandleClientConnectionThread(threading.Thread):
 
         finally:
             # Clean up the connection
-            print(self.id, ": Closing connection")
+            MSoMprint(self.id, ": Closing connection")
             self.connection.close()
-            print(self.delays)
+            MSoMprint(self.delays)
             to_join.append(self.id)
 
 
@@ -119,7 +135,7 @@ sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
 server_address = ('0.0.0.0', 8000)
-print("Stating the server on %s port %s" % server_address)
+MSoMprint("Stating the server on %s port %s" % server_address)
 sock.bind(server_address)
 
 # Listen for incoming connections
