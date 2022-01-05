@@ -5,6 +5,7 @@ import socket
 import string
 import threading
 import time
+import types
 
 BUFFER_SIZE = 2048
 ENCODING = 'ascii'
@@ -32,8 +33,14 @@ class BulkRequestHandler():
         self.connection = connection
 
     def run(self) -> int:
+        good = 1
         bulk = string_generator(size=self.size, chars=string.digits)
         self.connection.sendall(bulk.encode(ENCODING))
+        MSoMprint(self.id, ": Closing connection")
+        # 是否构建reply具体内容，确认后再close
+        self.connection.close()
+        return good
+
 
 class PingRequestHandler():
     def __init__(self, connection :socket, id):
@@ -52,7 +59,7 @@ class PingRequestHandler():
         '''
         # 如果出现异常考虑使用try语句
         good = 1
-        for i in range(round):
+        for _ in range(round):
             msg = string_generator(size=self.size, chars=string.digits)
             self.connection.sendall(msg.encode(ENCODING))
             reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
@@ -61,10 +68,30 @@ class PingRequestHandler():
                 continue
         
         MSoMprint(self.id, ": Closing connection")
+        # 是否构建reply具体内容，确认后再close
         self.connection.close()
         return good
 
+class StreamingRequestHandler():
+    def __init__(self, size, connection):
+        self.size = size
+        self.connection = connection
 
+    def run(self) -> int:
+        good = 1
+        while True:
+            bulk = string_generator(size=self.size, chars=string.digits)
+            self.connection.sendall(bulk.encode(ENCODING))
+            reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
+            if len(reply) != 10:
+                # 需要确认reply内容？
+                break
+
+
+        MSoMprint(self.id, ": Closing connection")
+        # 是否构建reply具体内容，确认后再close
+        self.connection.close()
+        return good
 
 class ClientRequest():
     def __init__(self, request_type, block_size, id, msg_size):

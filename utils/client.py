@@ -4,6 +4,7 @@ import random
 import socket
 import string
 import time
+import types
 
 BUFFER_SIZE = 2048
 ENCODING = 'ascii'
