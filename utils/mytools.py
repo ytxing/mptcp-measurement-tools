@@ -55,8 +55,8 @@ class Request():
         return self
 
 class TestServer():
-    def __init__(self, id, connection: socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
-        self.id = id
+    def __init__(self, id: str, connection: socket.socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
+        self.id: str = id
         self.connection: socket.socket = connection
         self.trunkSize = trunkSize
         self.wait4Reply = wait4Reply
