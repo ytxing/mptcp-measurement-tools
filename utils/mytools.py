@@ -8,33 +8,31 @@ from queue import Queue
 import re
 import threading
 
-READ_BUFFER_SIZE = 2048
-ENCODING = 'ascii'
-class readingThread (threading.Thread):
-    def __init__(self, connection: socket):
-        threading.Thread.__init__(self)
-        self.connection = connection
-    def run(self):
-        while True:
-            msg = self.connection.recv(READ_BUFFER_SIZE).decode(ENCODING)
-            print('read:', msg)
-            if msg == '\\end':
-                break
-        self.connection.close()
+READ_BUFFER_SIZE = 2048 * 1024 
 
-class sendingThread (threading.Thread):
-    def __init__(self, connection: socket):
-        threading.Thread.__init__(self)
+class Experiment():
+    def __init__(self, connection: socket, sendingSize=10, wait4Reply=True, waitTimer=5):
         self.connection = connection
-    def run(self):
-        while True:
-            msg = input('input: ')
-            self.connection.sendall(msg.encode('utf-8'))
-            if msg == '\\end':
-                break
-        self.connection.close()
+        self.sendingThread = None
+        self.seadingThread = None
+        self.queue = Queue(0)
+        self.sendingSize = sendingSize
+        self.wait4Reply = wait4Reply
+        self.waitTimer = waitTimer
+
+    def runExp(self):
+        # TODO 创建并开启两个线程，初始化queue
+        pass
+    def recvData(self):
+        # TODO 一个线程接收数据，解包并往queue里写入下一个要发送的数据块大小等参数
+        pass
+    def sendData(self):
+        # TODO 从queue中get数据，利用一个发送线程发送数据
+        pass
+
 
 def MSoMPrint(*args, **kwargs):
+    # ytxing: TODO 保存这些在某个文件里
    print('[MSoM][{}] '.format(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")), end='')
    return print(*args, **kwargs)
 
