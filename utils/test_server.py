@@ -5,7 +5,7 @@ import socket
 import string
 import threading
 import time
-import types
+from mytools import *
 
 BUFFER_SIZE = 2048
 ENCODING = 'ascii'
@@ -19,31 +19,70 @@ parser.add_argument("-b", "--bytes", type=int, help="number of bytes to send and
 
 args = parser.parse_args()
 
-
-def MSoMprint(*args, **kwargs):
-   print('[MSoM] ', end='')
-   return print(*args, **kwargs)
-
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+
+'''
+ytxing: 
+所有的request handler都用run来启动，
+服务器根据类型不同可能需要根据客户端的reply来触发继续发送(Ping, Streaming?, Interactive),
+有些不管reply一直发送
+'''
 class BulkRequestHandler():
-    def __init__(self, size, connection):
+    def __init__(self, size, connection: socket, id):
         self.size = size
         self.connection = connection
+        self.id = id
 
     def run(self) -> int:
-        good = 1
-        bulk = string_generator(size=self.size, chars=string.digits)
+        bulk = Message(size=self.size).msg
         self.connection.sendall(bulk.encode(ENCODING))
-        MSoMprint(self.id, ": Closing connection")
+        raw_reply = self.connection.recv(BUFFER_SIZE).decode(ENCODING)
+        reply = readMsgStr(raw_reply)
+        success = reply.good and reply.end
+        MSoMPrint(self.id, ": Closing connection")
         # 是否构建reply具体内容，确认后再close
         self.connection.close()
-        return good
+        return success
 
+class InteractiveRequestHandler():
+    def __init__(self, connection, id):
+        self.size = 10
+        self.round = 10
+        self.connection = connection
+        self.id = id
+        # self.avg_round_trip_time = None
+        # self.total_round_trip_time = None
+
+    def run(self) -> int:
+        '''
+        Interactive:1. the server sends one msg to the client
+                    2. the server waits for reply
+                    3. when receiving the reply form the client, go back to 1 and again
+        '''
+        # 如果出现异常考虑使用try语句
+        success = 1
+        for _ in range(round):
+            msg = Message(size=self.size).msg
+            self.connection.sendall(msg.encode(ENCODING))
+            raw_reply = self.connection.recv(BUFFER_SIZE).decode(ENCODING)
+            reply = readMsgStr(raw_reply)
+            if reply.good == 1 and reply.end == 0:
+                continue
+            if reply.end == 1:
+                break
+            if reply.good != 1:
+                success = 0
+                break
+        
+        MSoMPrint(self.id, ": Closing connection")
+        # 是否构建reply具体内容，确认后再close
+        self.connection.close()
+        return success
 
 class PingRequestHandler():
-    def __init__(self, connection :socket, id):
+    def __init__(self, connection, id):
         self.size = 10
         self.round = 10
         self.connection = connection
@@ -58,40 +97,69 @@ class PingRequestHandler():
               3. when receiving the reply form the client, go back to 1 and again
         '''
         # 如果出现异常考虑使用try语句
-        good = 1
+        success = 1
         for _ in range(round):
-            msg = string_generator(size=self.size, chars=string.digits)
+            msg = Message(size=self.size).msg
             self.connection.sendall(msg.encode(ENCODING))
-            reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
-            if len(reply) != self.size:
-                good = -1
+            raw_reply = self.connection.recv(BUFFER_SIZE).decode(ENCODING)
+            reply = readMsgStr(raw_reply)
+            if reply.good == 1 and reply.end == 0:
                 continue
+            if reply.end == 1:
+                break
+            if reply.good != 1:
+                success = 0
+                break
         
-        MSoMprint(self.id, ": Closing connection")
+        MSoMPrint(self.id, ": Closing connection")
         # 是否构建reply具体内容，确认后再close
         self.connection.close()
-        return good
+        return success
 
 class StreamingRequestHandler():
-    def __init__(self, size, connection):
+    def __init__(self, id, size, connection, wait_for_reply=True, wait_timeout=5):
         self.size = size
         self.connection = connection
+        self.wait_for_reply = wait_for_reply
+        self.wait_timeout = wait_timeout
+        self.id = id
 
     def run(self) -> int:
-        good = 1
+        '''
+        Streaming:  1. the server sends one trunk to the client
+                    2. the server waits for reply
+                    3. when receiving the reply form the client, go back to 1 and again
+        '''
+        success = 1
+        request_queue = Queue(0)
         while True:
-            bulk = string_generator(size=self.size, chars=string.digits)
+            bulk = Message(size=self.size).msg
             self.connection.sendall(bulk.encode(ENCODING))
-            reply = sock.recv(BUFFER_SIZE).decode(ENCODING)
-            if len(reply) != 10:
-                # 需要确认reply内容？
+            # ytxing: TODO 发送是一瞬间的吗？还是会阻塞进程导致接不到一个很快的reply。是不是需要用另一个线程实现发送。
+            # ytxing: 这个是会的 改成线程
+            raw_reply = self.connection.recv(BUFFER_SIZE).decode(ENCODING)
+            reply_queue = readRawMsgStr(raw_reply)
+            while not reply_queue:
+                t_reply = reply_queue.get()
+                request_queue.put(t_reply)
+            if reply == None:
+                # 如果没有收到东西会怎么样
+                MSoMPrint('No reply, streaming stop')
+                success = 0
                 break
+            if reply.good != 1:
+                MSoMPrint('Streaming stop by client accidentally')
+                success = 0
+                break
+            if reply.good == 1 and reply.end == 1:
+                MSoMPrint('Streaming stop by client')
+                success = 1
+                break
+            # if reply.good == 1 and reply.end == 0 then continue to send trunk
 
-
-        MSoMprint(self.id, ": Closing connection")
-        # 是否构建reply具体内容，确认后再close
+        MSoMPrint(self.id, "Closing connection, success:{}".format(success))
         self.connection.close()
-        return good
+        return success
 
 class ClientRequest():
     def __init__(self, request_type, block_size, id, msg_size):
@@ -114,7 +182,7 @@ class HandleClientConnectionThread(threading.Thread):
 
     def run(self):
         try:
-            MSoMprint(self.id, ": Connection from", self.client_address)
+            MSoMPrint(self.id, ": Connection from", self.client_address)
             start_time = None
             buffer_data = ""
 
@@ -140,9 +208,9 @@ class HandleClientConnectionThread(threading.Thread):
 
         finally:
             # Clean up the connection
-            MSoMprint(self.id, ": Closing connection")
+            MSoMPrint(self.id, ": Closing connection")
             self.connection.close()
-            MSoMprint(self.delays)
+            MSoMPrint(self.delays)
             to_join.append(self.id)
 
 
@@ -162,7 +230,7 @@ sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
 server_address = ('0.0.0.0', 8000)
-MSoMprint("Stating the server on %s port %s" % server_address)
+MSoMPrint("Stating the server on %s port %s" % server_address)
 sock.bind(server_address)
 
 # Listen for incoming connections
