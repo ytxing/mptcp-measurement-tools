@@ -8,28 +8,8 @@ from queue import Queue
 import re
 import threading
 
-READ_BUFFER_SIZE = 2048 * 1024 
-
-class Experiment():
-    def __init__(self, connection: socket, sendingSize=10, wait4Reply=True, waitTimer=5):
-        self.connection = connection
-        self.sendingThread = None
-        self.seadingThread = None
-        self.queue = Queue(0)
-        self.sendingSize = sendingSize
-        self.wait4Reply = wait4Reply
-        self.waitTimer = waitTimer
-
-    def runExp(self):
-        # TODO 创建并开启两个线程，初始化queue
-        pass
-    def recvData(self):
-        # TODO 一个线程接收数据，解包并往queue里写入下一个要发送的数据块大小等参数
-        pass
-    def sendData(self):
-        # TODO 从queue中get数据，利用一个发送线程发送数据
-        pass
-
+APP_READ_BUFFER_SIZE = 2048 * 1024 
+ENCODING = 'utf-8'
 
 def MSoMPrint(*args, **kwargs):
     # ytxing: TODO 保存这些在某个文件里
@@ -41,15 +21,16 @@ def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 class Message():
     def __init__(self, good=1, end=0, size=None, randomString=None):
-        self.round = round
-        self.good = good
-        self.end = end
-        if size == None:
-            self.msg = str(self.good) + str(self.end) + str(randomString)
-            self.size = len(self.msg)
-        else:
-            self.size = size
-            self.msg = self.generateMsgStr()
+        self.good: bool = good
+        self.end: bool = end
+        self.trunk: str = None 
+        if end != 1:
+            if size == None:
+                self.trunk = str(self.good) + str(self.end) + str(randomString)
+                self.size = len(self.trunk)
+            else:
+                self.size = size
+                self.trunk = self.generateMsgStr()
 
     def generateMsgStr(self) -> str:
         msgStr = str(self.good) + str(self.end)
@@ -64,14 +45,6 @@ def unpackMsgStr(msgStr: str) -> Message:
     randomStr = msgStr[2:]
     return Message(good=good, end=end, randomString=randomStr)
 
-def readRawMsgStr(msgStr: str) -> Queue:
-    q = Queue(-1)
-    p = re.compile(r'\[(.*?)\]')
-    raw_replies = re.findall(p, msgStr)
-    for raw_reply in raw_replies:
-        q.put(unpackMsgStr(raw_reply))
-    return q
-
 class Request():
     def __init__(self, trunk_size, round, wait_for_reply_timeout):
         self.trunk_size = trunk_size
@@ -80,6 +53,91 @@ class Request():
 
     def request(self):
         return self
+
+class TestServer():
+    def __init__(self, id, connection: socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
+        self.id = id
+        self.connection: socket.socket = connection
+        self.trunkSize = trunkSize
+        self.wait4Reply = wait4Reply
+        self.waitTimer: float = waitTimer
+
+        self.sendingThread = None
+        self.recvingThread = None
+        self.sendQueue = Queue(0)
+        self.queueLock = threading.Lock()
+        self.sendingThreadEnd = False
+        self.recvingThreadEnd = False
+        self.forceQuit = False # 不知道有没有用，用来强行停止线程
+
+    def recvData(self):
+        # Message格式: [(good) (end) (random string)]
+        MSoMPrint('ID:{} start recving data'.format(self.id))
+        bufferedStr = ''
+        currentMsgStr = ''
+        msgCheckFlag = False
+        self.recvingThreadEnd = False
+        while not self.forceQuit and not self.recvingThreadEnd:
+            bufferedStr += self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            while len(bufferedStr) > 0:
+                c = bufferedStr[0]
+
+                if c == '[':
+                    msgCheckFlag = True
+                elif c == ']':
+                    msgCheckFlag = False
+
+                    msg = unpackMsgStr(currentMsgStr)
+                    if msg.end == 1:
+                        self.recvingThreadEnd = True
+                    self.queueLock.acquire()
+                    self.sendQueue.put(Message(good=1, end=msg.end, size=self.trunkSize))
+                    self.queueLock.release()
+                    currentMsgStr = ''
+                elif msgCheckFlag == True:
+                    currentMsgStr += c
+
+                bufferedStr = bufferedStr[1:]
+        
+        MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
+
+    def sendData(self):
+        MSoMPrint('ID:{} sendData start sending data'.format(self.id))
+        self.sendingThreadEnd = False
+        while not self.forceQuit and not self.sendingThreadEnd:
+            try:
+                self.queueLock.acquire()
+                msg: Message = self.sendQueue.get(timeout=self.waitTimer)
+                self.queueLock.release()
+                if not msg.end:
+                    trunk = msg.trunk
+                    if trunk == None: # impossible
+                        self.sendingThreadEnd = 1
+
+                    MSoMPrint('ID:{} sendData send a trunk len:{}'.format(self.id, len(trunk)))
+                    self.connection.sendall(trunk.encode(ENCODING))
+                else:
+                    self.sendingThreadEnd = 1
+            except: 
+                MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
+                self.forceQuit
+
+        
+        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
+
+
+    def runExp(self):
+        # TODO 创建并开启两个线程，初始化queue
+        self.recvingThread = threading.Thread(target=self.recvData)
+        self.sendingThread = threading.Thread(target=self.sendData)
+        self.sendQueue.put(Message(good=1, end=0, size=self.trunkSize)) # 初始化第一个发送的块
+        self.sendingThread.start()
+        self.recvingThread.start()
+        self.sendingThread.join()
+        self.recvingThread.join()
+        MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
+        self.connection.close()
+
 
 if __name__ == '__main__':
     msg = Message(1, 1, 1220)
