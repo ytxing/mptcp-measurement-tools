@@ -1,7 +1,7 @@
 import socket
 import threading
 import sys
-
+from . import mytools
 
 # "IP", 0 : available; 1: unavailable
 dataServerIPs = {}
@@ -11,6 +11,7 @@ lock = threading.Lock()
 threads = {}
 toJoin = []
 
+
 def joinFinishedThreads():
 	""" Join threads whose connection is closed """
 	while len(toJoin) > 0:
@@ -18,12 +19,13 @@ def joinFinishedThreads():
 		threads[threadToJoinId].join()
 		del threads[threadToJoinId]
 
+
 class HandleConnectionFromClient(threading.Thread):
-	def __init__(self, connection, client_address, id):
+	def __init__(self, connection, clientADDR, id):
 		threading.Thread.__init__(self)
 		self.codeMode = "utf-8"
 		self.connection = connection
-		self.client_address = client_address
+		self.client_address = clientADDR
 		self.id = id
 		self.serverIP = ''
 
@@ -44,9 +46,12 @@ class HandleConnectionFromClient(threading.Thread):
 				if msg == "NEXT":
 					continue
 				else:
-					print(self.id, ": Closing connection, something wrong with client")
-					endMsg = "END"
-					self.connection.send(endMsg.encode(self.codeMode))
+					#TODO 每次实验结束后要创建对应的文件夹以便接受对应的实验文件
+					msg = "DIRECTORY"
+					self.connection.send(msg.encode(self.codeMode))
+					directory = self.connection.recv(1024).decode(self.codeMode)
+
+					mytools.MSoMPrint(self.id, ": Closing connection, something wrong with client")
 					self.connection.close()
 					lock.acquire()
 					dataServerIPs[self.serverIP] = 0
@@ -55,9 +60,12 @@ class HandleConnectionFromClient(threading.Thread):
 					toJoin.append(self.id)
 
 		if closeFlag == 0:
-			print(self.id, ": Closing connection")
-			endMsg = "END"
-			self.connection.send(endMsg.encode(self.codeMode))
+			# TODO 每次实验结束后要创建对应的文件夹以便接受对应的实验文件
+			msg = "DIRECTORY"
+			self.connection.send(msg.encode(self.codeMode))
+			directory = self.connection.recv(1024).decode(self.codeMode)
+
+			mytools.MSoMPrint(self.id, ": Closing connection")
 			self.connection.close()
 			lock.acquire()
 			dataServerIPs[self.serverIP] = 0
@@ -65,11 +73,9 @@ class HandleConnectionFromClient(threading.Thread):
 			toJoin.append(self.id)
 
 
-
-
-class TCPServer(object):
+class TCPServer:
 	def __init__(self, serverNums):
-		self.collectServerSocket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+		self.collectServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.collectServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.collectServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.collectServerSocket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -88,8 +94,9 @@ class TCPServer(object):
 			thread.start()
 			joinFinishedThreads()
 
+
 if __name__ == "__main__":
-	print("Please input the data server IPs: ")
+	mytools.MSoMPrint("Please input the data server IPs: ")
 	for i in range(1, len(sys.argv)):
 		dataServerIPs.update({sys.argv[i]: 0})
 	serverNums = len(dataServerIPs)
