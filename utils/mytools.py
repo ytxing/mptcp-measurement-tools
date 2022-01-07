@@ -78,8 +78,8 @@ class Message():
 
     def generateMsgStr(self) -> str:
         ctrlStr = '{:03}'.format(self.ctrl)
-        if self.end:
-            return '[' + ctrlStr + ']'
+        # if self.end:
+        #     return '[' + ctrlStr + ']'
         ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - 2), chars=string.digits)
         return '[' + ctrlStr + ramdomStr + ']'
 

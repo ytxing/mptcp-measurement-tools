@@ -14,7 +14,9 @@ class Client():
         self.round = round
         self.wait4Reply = wait4Reply
         self.waitTimer = waitTimer
-        self.type: int = getExpType(role, type)
+        self.role = role
+        self.type = type
+        self.typeCode: int = getExpType(role, type)
 
         
         self.sendingThread = None
@@ -47,18 +49,14 @@ class Client():
         self.sendingThreadEnd = False
         while not self.forceQuit and not self.sendingThreadEnd:
             try:
-                self.queueLock.acquire()
+                # self.queueLock.acquire()
                 msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                self.queueLock.release()
-                if not msg.end:
-                    trunk = msg.trunk
-                    if trunk == None: # impossible
-                        self.sendingThreadEnd = 1
-
-                    MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
-                    self.connection.sendall(trunk.encode(ENCODING))
-                    MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
-                else:
+                # self.queueLock.release()
+                trunk = msg.trunk
+                MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
+                self.connection.sendall(trunk.encode(ENCODING))
+                MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
+                if msg.end:
                     self.sendingThreadEnd = 1
             except: 
                 MSoMPrint('ID:{} sendData nothing to send in queue timeout, continue'.format(self.id))
@@ -66,23 +64,38 @@ class Client():
         
         MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
 
+    def putMsgInQueue(self, msg: Message):
+        # self.queueLock.acquire()
+        self.sendQueue.put(msg)
+        # self.queueLock.release()
+
+    def getMsgFromQueue(self) -> Message:
+        try:
+            # self.queueLock.acquire()
+            self.sendQueue.get(timeout=self.waitTimer)
+            # self.queueLock.release()
+        except:
+            raise
+
     def start(self):
         # 首先发送初始request给服务器，如有需要继续发送其他的
 
         # TODO 创建并开启两个线程，初始化queue
         self.recvingThread = threading.Thread(target=self.recvData)
         self.sendingThread = threading.Thread(target=self.sendData)
-        self.sendQueue.put(Message(good=1, end=0, size=self.trunkSize)) # 初始化第一个发送的块
         self.sendingThread.start()
         self.recvingThread.start()
 
-        msg = Message(1, 0, self.type, self.trunkSize)
-        self.queueLock.acquire()
-        self.sendQueue.put(msg)
-        self.queueLock.release()
-        MSoMPrint(self.id, 'putting msg in queue type:{}'.format(bin(msg.type)))
-        self.sendingThreadEnd = 1
-        self.recvingThreadEnd = 1
+        msg = Message(1, 1, self.typeCode, self.trunkSize)
+        self.putMsgInQueue(msg)
+        MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
+        time.sleep(1)
+
+        # ytxing: TODO 实验结束时
+        expDone = True
+        if expDone:
+            self.sendingThreadEnd = 1
+            self.recvingThreadEnd = 1
 
         self.sendingThread.join()
         self.recvingThread.join()
@@ -114,5 +127,5 @@ sock.connect(server_address)
 
 # ytxing: TODO 这里客户端从collect_server获得当次实验的参数
 
-client = Client('test-client', sock, 1200, 1, 'c', 'bulk')
+client = Client('test-client', connection=sock, trunkSize=10, round=1, role='c', type='bulk')
 client.start()

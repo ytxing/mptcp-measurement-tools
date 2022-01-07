@@ -31,7 +31,10 @@ class TestServer():
         msgCheckFlag = False
         self.recvingThreadEnd = False
         while not self.forceQuit and not self.recvingThreadEnd:
-            bufferedStr += self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            recvdStr = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            if recvdStr == '':
+                continue
+            bufferedStr += recvdStr
             while len(bufferedStr) > 0:
                 c = bufferedStr[0]
 
@@ -43,6 +46,7 @@ class TestServer():
                     currentMsgStr += c
 
                     msg = unpackMsgStr(currentMsgStr)
+                    MSoMPrint('ID:{} recv a msg ctrl:{:08b} len:{}'.format(self.id, msg.ctrl, len(currentMsgStr)))
                     if msg.end == 1:
                         self.recvingThreadEnd = True
                     self.queueLock.acquire()
@@ -61,30 +65,40 @@ class TestServer():
         self.sendingThreadEnd = False
         while not self.forceQuit and not self.sendingThreadEnd:
             try:
-                self.queueLock.acquire()
+                # self.queueLock.acquire()
                 msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                self.queueLock.release()
-                if not msg.end:
-                    trunk = msg.trunk
-                    if trunk == None: # impossible
-                        self.sendingThreadEnd = 1
-
-                    MSoMPrint('ID:{} sendData send a trunk len:{}'.format(self.id, len(trunk)))
-                    self.connection.sendall(trunk.encode(ENCODING))
-                else:
+                # self.queueLock.release()
+                trunk = msg.trunk
+                MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
+                self.connection.sendall(trunk.encode(ENCODING))
+                MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
+                if msg.end:
                     self.sendingThreadEnd = 1
             except: 
                 MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
+                self.forceQuit = 1
+                # self.queueLock.release()
 
         
-        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
+        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, int(self.sendingThreadEnd)))
 
+    def putMsgInQueue(self, msg: Message):
+        self.queueLock.acquire()
+        self.sendQueue.put(msg)
+        self.queueLock.release()
+
+    def getMsgFromQueue(self) -> Message:
+        try:
+            self.queueLock.acquire()
+            self.sendQueue.get(timeout=self.waitTimer)
+            self.queueLock.release()
+        except:
+            raise
 
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
         self.recvingThread = threading.Thread(target=self.recvData)
         self.sendingThread = threading.Thread(target=self.sendData)
-        self.sendQueue.put(Message(good=1, end=0, size=self.trunkSize)) # 初始化第一个发送的块
         self.sendingThread.start()
         self.recvingThread.start()
         self.sendingThread.join()
@@ -118,7 +132,9 @@ sock.listen(4)
 
 while True:
     # Wait for a connection
+    MSoMPrint("Waiting for a connection on %s port %s\n" % server_address)
     connection, client_address = sock.accept()
+    
     # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
     conn_id = 'time-ip-note'
     testServer = TestServer(conn_id, connection, trunkSize=1200)
