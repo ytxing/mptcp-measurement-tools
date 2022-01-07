@@ -11,6 +11,9 @@ import threading
 APP_READ_BUFFER_SIZE = 2048 * 1024 
 ENCODING = 'utf-8'
 
+def bin2Str(b) -> str:
+    return format(int(b), 'b')
+
 def MSoMPrint(*args, **kwargs):
     # ytxing: TODO 保存这些在某个文件里
    print('[MSoM][{}] '.format(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")), end='')
@@ -19,127 +22,94 @@ def MSoMPrint(*args, **kwargs):
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+def getExpType(role: str, type: str) -> int:
+    t = 0
+    if role == 'c':
+        t += 0 << 2
+    elif role == 's':
+        t += 1 << 2
+    else:
+        print('getExpType: invalid role')
+        return None
+    
+    if type == 'ping':
+        t += 0
+    elif type == 'bulk':
+        t += 1
+    elif type == 'stream':
+        t += 2
+    elif type == 'siri':
+        t += 3
+    else:
+        print('getExpType: invalid type')
+        return None
+
+    return t
+
 class Message():
-    def __init__(self, good=1, end=0, size=None, randomString=None):
+    '''
+    structure:
+
+    |   0   |   0   |  0 0 0   |  0 0 0  | 0 ~ 255
+
+    |  good |  end  |   type   |  unused |
+
+    |  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
+    '''
+    def __init__(self, good=1, end=0, type=0b000, size=10, copyString=None):
         self.good: bool = good
         self.end: bool = end
-        self.trunk: str = None 
-        if end != 1:
-            if size == None:
-                self.trunk = str(self.good) + str(self.end) + str(randomString)
-                self.size = len(self.trunk)
-            else:
-                self.size = size
-                self.trunk = self.generateMsgStr()
+        self.type = type
+        self.ctrl = self.generateCtrl()
+        self.trunk: str = None
+        if copyString != None:
+            self.trunk = '[{:03}'.format(self.ctrl) + copyString + ']'
+            self.size = len(self.trunk)
+        else:
+            self.size = size
+            self.trunk = self.generateMsgStr()
+
+
+    def generateCtrl(self) -> int:
+        #   0   |   0   |  0 0 0   |  0 0 0  | 0 ~ 255
+        #  good |  end  |   type   |  unused |
+        #  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
+        return (self.type << 3) + (self.end << 6) + (self.good << 7)
 
     def generateMsgStr(self) -> str:
-        msgStr = str(self.good) + str(self.end)
-        ramdomStr = string_generator(min(0, size=self.size - len(msgStr) - 2), chars=string.digits)
-        return '[' + msgStr + ramdomStr + ']'
+        ctrlStr = '{:03}'.format(self.ctrl)
+        if self.end:
+            return '[' + ctrlStr + ']'
+        ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - 2), chars=string.digits)
+        return '[' + ctrlStr + ramdomStr + ']'
 
 def unpackMsgStr(msgStr: str) -> Message:
-    if len(msgStr) < 2:
+    if len(msgStr) < 5:
         return None
-    good = int(msgStr[0])
-    end = int(msgStr[1])
-    randomStr = msgStr[2:]
-    return Message(good=good, end=end, randomString=randomStr)
-
-class Request():
-    def __init__(self, trunk_size, round, wait_for_reply_timeout):
-        self.trunk_size = trunk_size
-        self.round = round
-        self.wait_for_reply_timeout = wait_for_reply_timeout
-
-    def request(self):
-        return self
-
-class TestServer():
-    def __init__(self, id: str, connection: socket.socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
-        self.id: str = id
-        self.connection: socket.socket = connection
-        self.trunkSize = trunkSize
-        self.wait4Reply = wait4Reply
-        self.waitTimer: float = waitTimer
-
-        self.sendingThread = None
-        self.recvingThread = None
-        self.sendQueue = Queue(0)
-        self.queueLock = threading.Lock()
-        self.sendingThreadEnd = False
-        self.recvingThreadEnd = False
-        self.forceQuit = False # 不知道有没有用，用来强行停止线程
-
-    def recvData(self):
-        # Message格式: [(good) (end) (random string)]
-        MSoMPrint('ID:{} start recving data'.format(self.id))
-        bufferedStr = ''
-        currentMsgStr = ''
-        msgCheckFlag = False
-        self.recvingThreadEnd = False
-        while not self.forceQuit and not self.recvingThreadEnd:
-            bufferedStr += self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
-            while len(bufferedStr) > 0:
-                c = bufferedStr[0]
-
-                if c == '[':
-                    msgCheckFlag = True
-                elif c == ']':
-                    msgCheckFlag = False
-
-                    msg = unpackMsgStr(currentMsgStr)
-                    if msg.end == 1:
-                        self.recvingThreadEnd = True
-                    self.queueLock.acquire()
-                    self.sendQueue.put(Message(good=1, end=msg.end, size=self.trunkSize))
-                    self.queueLock.release()
-                    currentMsgStr = ''
-                elif msgCheckFlag == True:
-                    currentMsgStr += c
-
-                bufferedStr = bufferedStr[1:]
-        
-        MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
-
-    def sendData(self):
-        MSoMPrint('ID:{} sendData start sending data'.format(self.id))
-        self.sendingThreadEnd = False
-        while not self.forceQuit and not self.sendingThreadEnd:
-            try:
-                self.queueLock.acquire()
-                msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                self.queueLock.release()
-                if not msg.end:
-                    trunk = msg.trunk
-                    if trunk == None: # impossible
-                        self.sendingThreadEnd = 1
-
-                    MSoMPrint('ID:{} sendData send a trunk len:{}'.format(self.id, len(trunk)))
-                    self.connection.sendall(trunk.encode(ENCODING))
-                else:
-                    self.sendingThreadEnd = 1
-            except: 
-                MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
-                self.forceQuit
-
-        
-        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
-
-
-    def runExp(self):
-        # TODO 创建并开启两个线程，初始化queue
-        self.recvingThread = threading.Thread(target=self.recvData)
-        self.sendingThread = threading.Thread(target=self.sendData)
-        self.sendQueue.put(Message(good=1, end=0, size=self.trunkSize)) # 初始化第一个发送的块
-        self.sendingThread.start()
-        self.recvingThread.start()
-        self.sendingThread.join()
-        self.recvingThread.join()
-        MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
-        self.connection.close()
-
+    if msgStr[0] != '[' or msgStr[-1] != ']':
+        return None
+    msg = msgStr[1:-1]
+    ctrl = int(bin2Str(msg[0:3]), 2)
+    good = 0b1 & (ctrl >> 7)
+    end = 0b1 & (ctrl >> 6)
+    type = 0b111 & (ctrl >> 3)
+    randomStr = msg[3:]
+    return Message(good=good, end=end, type=type, copyString=randomStr)
 
 if __name__ == '__main__':
-    msg = Message(1, 1, 1220)
-    print(msg.msg)
-    print(len(msg.msg.encode()))
+    # good = 1
+    # end = 1
+    # type = 7
+    # for i in range(good + 1):
+    #     for j in range(end + 1):
+    #         for k in range(type + 1):
+    #             msg = Message(good, end, type, size=random.randint(0, 1200))
+    #             unpackedMsg = unpackMsgStr(msg.trunk)
+    #             if msg.ctrl == unpackedMsg.ctrl:
+    #                 continue
+    #             print('???')
+    print(bin(getExpType('c', 'siri')))
+    # msg = Message(1, 1, 0b011, size=10)
+    # print(msg.trunk)
+    # print(msg.ctrl)
+    # print(bin(unpackMsgStr(msg.trunk).ctrl))

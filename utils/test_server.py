@@ -7,20 +7,97 @@ import threading
 import time
 from mytools import *
 
+class TestServer():
+    def __init__(self, id: str, connection: socket.socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
+        self.id: str = id
+        self.connection: socket.socket = connection
+        self.trunkSize = trunkSize
+        self.wait4Reply = wait4Reply
+        self.waitTimer: float = waitTimer
+
+        self.sendingThread = None
+        self.recvingThread = None
+        self.sendQueue = Queue(0)
+        self.queueLock = threading.Lock()
+        self.sendingThreadEnd = False
+        self.recvingThreadEnd = False
+        self.forceQuit = False # 不知道有没有用，用来强行停止线程
+
+    def recvData(self):
+        # Message格式: [(good) (end) (random string)]
+        MSoMPrint('ID:{} start recving data'.format(self.id))
+        bufferedStr = ''
+        currentMsgStr = ''
+        msgCheckFlag = False
+        self.recvingThreadEnd = False
+        while not self.forceQuit and not self.recvingThreadEnd:
+            bufferedStr += self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            while len(bufferedStr) > 0:
+                c = bufferedStr[0]
+
+                if c == '[':
+                    msgCheckFlag = True
+                    currentMsgStr += c
+                elif c == ']':
+                    msgCheckFlag = False
+                    currentMsgStr += c
+
+                    msg = unpackMsgStr(currentMsgStr)
+                    if msg.end == 1:
+                        self.recvingThreadEnd = True
+                    self.queueLock.acquire()
+                    self.sendQueue.put(Message(good=1, end=msg.end, size=self.trunkSize))
+                    self.queueLock.release()
+                    currentMsgStr = ''
+                elif msgCheckFlag == True:
+                    currentMsgStr += c
+
+                bufferedStr = bufferedStr[1:]
+        
+        MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
+
+    def sendData(self):
+        MSoMPrint('ID:{} sendData start sending data'.format(self.id))
+        self.sendingThreadEnd = False
+        while not self.forceQuit and not self.sendingThreadEnd:
+            try:
+                self.queueLock.acquire()
+                msg: Message = self.sendQueue.get(timeout=self.waitTimer)
+                self.queueLock.release()
+                if not msg.end:
+                    trunk = msg.trunk
+                    if trunk == None: # impossible
+                        self.sendingThreadEnd = 1
+
+                    MSoMPrint('ID:{} sendData send a trunk len:{}'.format(self.id, len(trunk)))
+                    self.connection.sendall(trunk.encode(ENCODING))
+                else:
+                    self.sendingThreadEnd = 1
+            except: 
+                MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
+
+        
+        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
+
+
+    def start(self):
+        # TODO 创建并开启两个线程，初始化queue
+        self.recvingThread = threading.Thread(target=self.recvData)
+        self.sendingThread = threading.Thread(target=self.sendData)
+        self.sendQueue.put(Message(good=1, end=0, size=self.trunkSize)) # 初始化第一个发送的块
+        self.sendingThread.start()
+        self.recvingThread.start()
+        self.sendingThread.join()
+        self.recvingThread.join()
+        MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
+        self.connection.close()
+
+
 parser = argparse.ArgumentParser(description="Msg server")
 parser.add_argument("-s", "--sleep", type=float, help="sleep time between reception and sending", default=5.0)
 parser.add_argument("-b", "--bytes", type=int, help="number of bytes to send and receive", default=1200)
 
 args = parser.parse_args()
-
-class ClientRequest():
-    def __init__(self, request_type, block_size, id, msg_size):
-        self.connection = connection
-        self.client_address = client_address
-        self.id = id
-        self.msg_size = msg_size
-        self.delays = []
-
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,4 +122,4 @@ while True:
     # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
     conn_id = 'time-ip-note'
     testServer = TestServer(conn_id, connection, trunkSize=1200)
-    testServer.runExp()
+    testServer.start()
