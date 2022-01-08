@@ -11,8 +11,8 @@ import threading
 APP_READ_BUFFER_SIZE = 2048 * 1024 
 ENCODING = 'utf-8'
 
-def bin2Str(b) -> str:
-    return format(int(b), 'b')
+def int2HexStr(i) -> str:
+    return format(int(i), 'x')
 
 def MSoMPrint(*args, **kwargs):
     # ytxing: TODO 保存这些在某个文件里
@@ -50,20 +50,21 @@ class Message():
     '''
     structure:
 
-    |   0   |   0   |  0 0 0   |  0 0 0  | 0 ~ 255
+    |   0   |   0   |  0 0 0   |  0 0 0  | 0 ~ 255 (0xff)
 
     |  good |  end  |   type   |  unused |
 
     |  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
     '''
-    def __init__(self, good=1, end=0, type=0b000, size=10, copyString=None):
+    def __init__(self, good=1, end=0, type=0b000, reqTrunkSize=0x00000000, size=10, copyString=None):
         self.good: bool = good
         self.end: bool = end
         self.type = type
         self.ctrl = self.generateCtrl()
+        self.reqTrunkSize: int = reqTrunkSize
         self.trunk: str = None
         if copyString != None:
-            self.trunk = '[{:03}'.format(self.ctrl) + copyString + ']'
+            self.trunk = '[{:02x}'.format(self.ctrl) + copyString + ']'
             self.size = len(self.trunk)
         else:
             self.size = size
@@ -77,11 +78,12 @@ class Message():
         return (self.type << 3) + (self.end << 6) + (self.good << 7)
 
     def generateMsgStr(self) -> str:
-        ctrlStr = '{:03}'.format(self.ctrl)
+        ctrlStr = '{:02x}'.format(self.ctrl)
+        reqTrunkSizeStr = '{:08x}'.format(self.reqTrunkSize)
         # if self.end:
         #     return '[' + ctrlStr + ']'
-        ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - 2), chars=string.digits)
-        return '[' + ctrlStr + ramdomStr + ']'
+        ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - len(reqTrunkSizeStr) - 2), chars=string.digits)
+        return '[' + ctrlStr + reqTrunkSizeStr + ramdomStr + ']'
 
 def unpackMsgStr(msgStr: str) -> Message:
     if len(msgStr) < 5:
@@ -89,12 +91,13 @@ def unpackMsgStr(msgStr: str) -> Message:
     if msgStr[0] != '[' or msgStr[-1] != ']':
         return None
     msg = msgStr[1:-1]
-    ctrl = int(bin2Str(msg[0:3]), 2)
+    ctrl = int(msg[0:2], 16)
     good = 0b1 & (ctrl >> 7)
     end = 0b1 & (ctrl >> 6)
     type = 0b111 & (ctrl >> 3)
+    reqTrunkSize = 0xffff & (int(msg[2:10], 16))
     randomStr = msg[3:]
-    return Message(good=good, end=end, type=type, copyString=randomStr)
+    return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyString=randomStr)
 
 if __name__ == '__main__':
     # good = 1
@@ -108,8 +111,10 @@ if __name__ == '__main__':
     #             if msg.ctrl == unpackedMsg.ctrl:
     #                 continue
     #             print('???')
-    print(bin(getExpType('c', 'siri')))
-    # msg = Message(1, 1, 0b011, size=10)
-    # print(msg.trunk)
-    # print(msg.ctrl)
-    # print(bin(unpackMsgStr(msg.trunk).ctrl))
+    # print(bin(getExpType('c', 'siri')))
+    msg = Message(1, 1, 0b011, size=20, reqTrunkSize=255)
+    print(msg.trunk)
+    print('ctrl', bin(msg.ctrl))
+    print('len', len(msg.trunk))
+    print(bin(unpackMsgStr(msg.trunk).ctrl))
+    print('reqlen', unpackMsgStr(msg.trunk).reqTrunkSize)

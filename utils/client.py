@@ -7,9 +7,10 @@ import time
 import types
 from mytools import *
 class Client():
-    def __init__(self, id: str, connection: socket.socket, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=10.0):
+    def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=10.0):
         self.id: str = id
         self.connection: socket.socket = connection
+        self.reqTrunkSize = reqTrunkSize # need to be less than 0xFFFFFFFF = 4294967295 ~= 4.2GB
         self.trunkSize = trunkSize
         self.round = round
         self.wait4Reply = wait4Reply
@@ -37,10 +38,12 @@ class Client():
             trunk = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
             bufferedStr += trunk
             bytesRecved += len(trunk)
-            if bytesRecved >= self.trunkSize * self.round:
-                self.recvingThreadEnd = True
-                break
-            # ytxing: TODO 这里就可以通过处理这个trunk获得各种信息
+
+            MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(trunk), bytesRecved))
+            # if bytesRecved >= self.trunkSize * self.round:
+            #     self.recvingThreadEnd = True
+            #     break
+            # ytxing: TODO 这里就可以通过处理这个trunk获得各种信息 
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{} bytesRecved:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd, bytesRecved))
     
@@ -86,7 +89,11 @@ class Client():
         self.sendingThread.start()
         self.recvingThread.start()
 
-        msg = Message(1, 1, self.typeCode, self.trunkSize)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=255, size=self.trunkSize)
+        self.putMsgInQueue(msg)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=256, size=self.trunkSize)
+        self.putMsgInQueue(msg)
+        msg = Message(1, 1, self.typeCode, reqTrunkSize=2000, size=self.trunkSize)
         self.putMsgInQueue(msg)
         MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
         time.sleep(1)
@@ -116,16 +123,16 @@ args = parser.parse_args()
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+# sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
-server_address = ('0.0.0.0', 8000)
+server_address = ('0.0.0.0', 8001)
 print("Try to connect to %s port %s" % server_address)
 sock.connect(server_address)
 
 # ytxing: TODO 这里客户端从collect_server获得当次实验的参数
 
-client = Client('test-client', connection=sock, trunkSize=10, round=1, role='c', type='bulk')
+client = Client('test-client', connection=sock, trunkSize=10, round=1, role='c', type='bulk', reqTrunkSize=1200)
 client.start()

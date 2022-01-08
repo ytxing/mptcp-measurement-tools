@@ -46,11 +46,11 @@ class TestServer():
                     currentMsgStr += c
 
                     msg = unpackMsgStr(currentMsgStr)
-                    MSoMPrint('ID:{} recv a msg ctrl:{:08b} len:{}'.format(self.id, msg.ctrl, len(currentMsgStr)))
+                    MSoMPrint('ID:{} recv a msg ctrl:{:08b} len:{} req4trunk len {}'.format(self.id, msg.ctrl, len(currentMsgStr), msg.reqTrunkSize))
                     if msg.end == 1:
                         self.recvingThreadEnd = True
                     self.queueLock.acquire()
-                    self.sendQueue.put(Message(good=1, end=msg.end, size=self.trunkSize))
+                    self.sendQueue.put(Message(good=1, end=msg.end, size=msg.reqTrunkSize))
                     self.queueLock.release()
                     currentMsgStr = ''
                 elif msgCheckFlag == True:
@@ -116,12 +116,12 @@ args = parser.parse_args()
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+# sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
-server_address = ('0.0.0.0', 8000)
+server_address = ('0.0.0.0', 8001)
 MSoMPrint("Stating the server on %s port %s" % server_address)
 sock.bind(server_address)
 
