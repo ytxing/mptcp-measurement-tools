@@ -7,6 +7,7 @@ import string
 from queue import Queue
 import re
 import threading
+from typing import Tuple
 
 APP_READ_BUFFER_SIZE = 2048 * 1024 
 ENCODING = 'utf-8'
@@ -98,6 +99,90 @@ def unpackMsgStr(msgStr: str) -> Message:
     reqTrunkSize = 0xffff & (int(msg[2:10], 16))
     randomStr = msg[3:]
     return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyString=randomStr)
+
+class ExpNode():
+    def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=10.0):
+        self.id: str = id
+        self.connection: socket.socket = connection
+        self.reqTrunkSize = reqTrunkSize # need to be less than 0xFFFFFFFF = 4294967295 ~= 4.2GB
+        self.trunkSize = trunkSize
+        self.round = round
+        self.wait4Reply = wait4Reply
+        self.waitTimer = waitTimer
+        self.role = role
+        self.type = type
+        self.typeCode: int = getExpType(role, type)
+
+        
+        self.sendingThread = None
+        self.recvingThread = None
+        self.sendQueue = Queue(0)
+        self.queueLock = threading.Lock()
+        self.sendingThreadEnd = False
+        self.recvingThreadEnd = False
+        self.forceQuit = False # 不知道有没有用，用来强行停止线程
+
+    def getOneMsg(self, bufferedStr: str) -> Tuple[Message, str] :
+        currentMsgStr = ''
+        oneMsgGot = False
+        s = bufferedStr
+        msgCheckFlag = False
+        while len(s) > 0 and not oneMsgGot:
+                c = s[0]
+
+                if c == '[':
+                    msgCheckFlag = True
+                    currentMsgStr += c
+                elif c == ']' and msgCheckFlag:
+                    msgCheckFlag = False
+                    currentMsgStr += c
+
+                    msg = unpackMsgStr(currentMsgStr)
+                    if msg == None:
+                        return None, bufferedStr
+                    oneMsgGot = True
+                    currentMsgStr = ''
+                elif msgCheckFlag:
+                    currentMsgStr += c
+        
+                s = s[1:]
+        
+        if not oneMsgGot:
+            return None, bufferedStr
+        else:
+            return msg, s
+
+    def queueAllMsg(self, bufferedStr: str) -> str:
+        s = bufferedStr
+        while len(s) > 0:
+            msg, s = self.getOneMsg(s)
+            if msg == None:
+                return s
+            else:
+                print(msg.trunk, '+', s)
+                self.putMsgInQueue(Message(good=1, end=msg.end, size=msg.reqTrunkSize))
+                self.recvingThreadEnd = msg.end
+                MSoMPrint('ID:{} get a msg, put in queue End:{} Size:{} '.format(self.id, self.recvingThreadEnd, msg.reqTrunkSize))
+        return s
+
+    def putMsgInQueue(self, msg: Message):
+        self.queueLock.acquire()
+        self.sendQueue.put(msg)
+        self.queueLock.release()
+
+    def getMsgFromQueue(self) -> Message:
+        try:
+            msg = self.sendQueue.get(timeout=self.waitTimer)
+            return msg
+        except:
+            raise
+
+    def recvData(self):
+        pass 
+    def sendData(self):
+        pass
+    def start(self):
+        pass
 
 if __name__ == '__main__':
     # good = 1

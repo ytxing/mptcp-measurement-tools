@@ -7,7 +7,7 @@ import threading
 import time
 from mytools import *
 
-class TestServer():
+class TestServer(ExpNode):
     def __init__(self, id: str, connection: socket.socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
         self.id: str = id
         self.connection: socket.socket = connection
@@ -27,37 +27,12 @@ class TestServer():
         # Message格式: [(good) (end) (random string)]
         MSoMPrint('ID:{} start recving data'.format(self.id))
         bufferedStr = ''
-        currentMsgStr = ''
-        msgCheckFlag = False
         self.recvingThreadEnd = False
         while not self.forceQuit and not self.recvingThreadEnd:
             recvdStr = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
-            if recvdStr == '':
-                continue
             bufferedStr += recvdStr
-            while len(bufferedStr) > 0:
-                c = bufferedStr[0]
+            self.queueAllMsg(bufferedStr)
 
-                if c == '[':
-                    msgCheckFlag = True
-                    currentMsgStr += c
-                elif c == ']':
-                    msgCheckFlag = False
-                    currentMsgStr += c
-
-                    msg = unpackMsgStr(currentMsgStr)
-                    MSoMPrint('ID:{} recv a msg ctrl:{:08b} len:{} req4trunk len {}'.format(self.id, msg.ctrl, len(currentMsgStr), msg.reqTrunkSize))
-                    if msg.end == 1:
-                        self.recvingThreadEnd = True
-                    self.queueLock.acquire()
-                    self.sendQueue.put(Message(good=1, end=msg.end, size=msg.reqTrunkSize))
-                    self.queueLock.release()
-                    currentMsgStr = ''
-                elif msgCheckFlag == True:
-                    currentMsgStr += c
-
-                bufferedStr = bufferedStr[1:]
-        
         MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
 
     def sendData(self):
@@ -65,9 +40,8 @@ class TestServer():
         self.sendingThreadEnd = False
         while not self.forceQuit and not self.sendingThreadEnd:
             try:
-                # self.queueLock.acquire()
-                msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                # self.queueLock.release()
+                msg: Message = self.getMsgFromQueue()
+                # msg: Message = self.sendQueue.get(timeout=self.waitTimer)
                 trunk = msg.trunk
                 MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
                 self.connection.sendall(trunk.encode(ENCODING))
@@ -77,23 +51,8 @@ class TestServer():
             except: 
                 MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
                 self.forceQuit = 1
-                # self.queueLock.release()
 
-        
         MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, int(self.sendingThreadEnd)))
-
-    def putMsgInQueue(self, msg: Message):
-        self.queueLock.acquire()
-        self.sendQueue.put(msg)
-        self.queueLock.release()
-
-    def getMsgFromQueue(self) -> Message:
-        try:
-            self.queueLock.acquire()
-            self.sendQueue.get(timeout=self.waitTimer)
-            self.queueLock.release()
-        except:
-            raise
 
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
@@ -116,9 +75,9 @@ args = parser.parse_args()
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-# sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
 server_address = ('0.0.0.0', 8001)

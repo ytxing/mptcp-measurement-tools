@@ -6,7 +6,7 @@ import string
 import time
 import types
 from mytools import *
-class Client():
+class Client(ExpNode):
     def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=10.0):
         self.id: str = id
         self.connection: socket.socket = connection
@@ -35,11 +35,12 @@ class Client():
         bytesRecved = 0
         self.recvingThreadEnd = False
         while not self.forceQuit and not self.recvingThreadEnd:
-            trunk = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
-            bufferedStr += trunk
-            bytesRecved += len(trunk)
+            recvdStr = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            bufferedStr += recvdStr
+            bytesRecved += len(recvdStr)
+            bufferedStr = self.queueAllMsg(bufferedStr)
 
-            MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(trunk), bytesRecved))
+            MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(recvdStr), bytesRecved))
             # if bytesRecved >= self.trunkSize * self.round:
             #     self.recvingThreadEnd = True
             #     break
@@ -89,11 +90,11 @@ class Client():
         self.sendingThread.start()
         self.recvingThread.start()
 
-        msg = Message(1, 0, self.typeCode, reqTrunkSize=255, size=self.trunkSize)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=100, size=self.trunkSize)
         self.putMsgInQueue(msg)
-        msg = Message(1, 0, self.typeCode, reqTrunkSize=256, size=self.trunkSize)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=100, size=self.trunkSize)
         self.putMsgInQueue(msg)
-        msg = Message(1, 1, self.typeCode, reqTrunkSize=2000, size=self.trunkSize)
+        msg = Message(1, 1, self.typeCode, reqTrunkSize=114514, size=self.trunkSize)
         self.putMsgInQueue(msg)
         MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
         time.sleep(1)
@@ -123,9 +124,9 @@ args = parser.parse_args()
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-# sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-# sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 # Bind the socket to the port
 server_address = ('0.0.0.0', 8001)
