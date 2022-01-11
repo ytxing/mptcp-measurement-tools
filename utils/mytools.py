@@ -57,18 +57,18 @@ class Message():
 
     |  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
     '''
-    def __init__(self, good=1, end=0, type=0b000, reqTrunkSize=0x00000000, size=10, copyString=None):
+    def __init__(self, good=1, end=0, type=0b000, reqTrunkSize=0x00000000, size=10, copyTrunk: str=None):
         self.good: bool = good
         self.end: bool = end
         self.type = type
         self.ctrl = self.generateCtrl()
-        self.reqTrunkSize: int = reqTrunkSize
+        self.reqTrunkSize: int = reqTrunkSize # need to be less than 0xFFFFFFFF = 4294967295 ~= 4.2GB
         self.trunk: str = None
-        if copyString != None:
-            self.trunk = '[{:02x}'.format(self.ctrl) + copyString + ']'
+        if copyTrunk != None:
+            self.trunk: str = copyTrunk
             self.size = len(self.trunk)
         else:
-            self.size = size
+            self.size = size # TODO should also be included in the message trunk
             self.trunk = self.generateMsgStr()
 
 
@@ -78,35 +78,35 @@ class Message():
         #  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
         return (self.type << 3) + (self.end << 6) + (self.good << 7)
 
-    def generateMsgStr(self) -> str:
+    def generateMsgStr(self, copyTrunk: str=None) -> str:
         ctrlStr = '{:02x}'.format(self.ctrl)
         reqTrunkSizeStr = '{:08x}'.format(self.reqTrunkSize)
         # if self.end:
         #     return '[' + ctrlStr + ']'
-        ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - len(reqTrunkSizeStr) - 2), chars=string.digits)
+        if copyTrunk != None:
+            ramdomStr = copyTrunk
+        else:
+            ramdomStr = string_generator(max(0, self.size - len(ctrlStr) - len(reqTrunkSizeStr) - 2), chars=string.digits)
         return '[' + ctrlStr + reqTrunkSizeStr + ramdomStr + ']'
 
-def unpackMsgStr(msgStr: str) -> Message:
-    if len(msgStr) < 5:
+def unpackMsgStr(trunk: str) -> Message:
+    if len(trunk) < 5:
         return None
-    if msgStr[0] != '[' or msgStr[-1] != ']':
+    if trunk[0] != '[' or trunk[-1] != ']':
         return None
-    msg = msgStr[1:-1]
-    ctrl = int(msg[0:2], 16)
+    trunk_t = trunk[1:-1]
+    print(trunk_t, trunk_t[0:2], trunk_t[2:10], trunk_t[10:])
+    ctrl = int(trunk_t[0:2], 16)
     good = 0b1 & (ctrl >> 7)
     end = 0b1 & (ctrl >> 6)
     type = 0b111 & (ctrl >> 3)
-    reqTrunkSize = 0xffff & (int(msg[2:10], 16))
-    randomStr = msg[3:]
-    return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyString=randomStr)
+    reqTrunkSize = 0xffff & (int(trunk_t[2:10], 16))
+    return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyTrunk=trunk)
 
 class ExpNode():
-    def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=100.0):
+    def __init__(self, id: str, connection: socket.socket, role:str, type:str='ping', wait4Reply=True, waitTimer=100.0):
         self.id: str = id
         self.connection: socket.socket = connection
-        self.reqTrunkSize = reqTrunkSize # need to be less than 0xFFFFFFFF = 4294967295 ~= 4.2GB
-        self.trunkSize = trunkSize
-        self.round = round
         self.wait4Reply = wait4Reply
         self.waitTimer = waitTimer
         self.role = role
@@ -117,6 +117,7 @@ class ExpNode():
         self.sendingThread = None
         self.recvingThread = None
         self.sendQueue = Queue(0)
+        self.recvQueue = Queue(0)
         self.queueLock = threading.Lock()
         self.sendingThreadEnd = False
         self.recvingThreadEnd = False
@@ -136,7 +137,6 @@ class ExpNode():
                 elif c == ']' and msgCheckFlag:
                     msgCheckFlag = False
                     currentMsgStr += c
-
                     msg = unpackMsgStr(currentMsgStr)
                     if msg == None:
                         return None, bufferedStr
@@ -152,9 +152,9 @@ class ExpNode():
         else:
             return msg, s
 
-    def queueAllMsg(self, bufferedStr: str) -> str:
+    def putAllMsgInRecvQueue(self, bufferedStr: str) -> str:
         '''
-        queueAllMsg decodes the bufferedStr and get Messages from it
+        putAllMsgInRecvQueue decodes the bufferedStr and get Messages from it
         if it does not find any Message, it returns the original bufferedStr and puts nothing in queue.
         or it queues all Messages and returns the string except for the queued Messages.
         '''
@@ -165,19 +165,31 @@ class ExpNode():
                 return s
             else:
                 print(msg.trunk, '+', s)
-                self.putMsgInQueue(Message(good=1, end=msg.end, size=msg.reqTrunkSize))
+                self.putMsgInRecvQueue(msg)
                 self.recvingThreadEnd = msg.end
-                MSoMPrint('ID:{} get a msg, put in queue End:{} Size:{} '.format(self.id, self.recvingThreadEnd, msg.reqTrunkSize))
+                MSoMPrint('ID:{} get a msg, put in queue End:{} Size:{} '.format(self.id, self.recvingThreadEnd, len(msg.trunk)))
         return s
 
-    def putMsgInQueue(self, msg: Message):
+    def putMsgInSendQueue(self, msg: Message) -> Message:
         self.queueLock.acquire()
         self.sendQueue.put(msg)
         self.queueLock.release()
 
-    def getMsgFromQueue(self) -> Message:
+    def getMsgFromSendQueue(self) -> Message:
         try:
             msg = self.sendQueue.get(timeout=self.waitTimer)
+            return msg
+        except:
+            raise
+
+    def putMsgInRecvQueue(self, msg: Message) -> Message:
+        self.queueLock.acquire()
+        self.recvQueue.put(msg)
+        self.queueLock.release()
+
+    def getMsgFromRecvQueue(self) -> Message:
+        try:
+            msg = self.recvQueue.get(timeout=self.waitTimer)
             return msg
         except:
             raise
@@ -185,7 +197,21 @@ class ExpNode():
     def recvData(self):
         pass 
     def sendData(self):
-        pass
+        MSoMPrint('ID:{} sendData start sending data'.format(self.id))
+        self.sendingThreadEnd = False
+        while not self.forceQuit and not self.sendingThreadEnd:
+            try:
+                msg: Message = self.getMsgFromSendQueue()
+                trunk = msg.trunk
+                MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
+                self.connection.sendall(trunk.encode(ENCODING))
+                MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
+                if msg.end:
+                    self.sendingThreadEnd = 1
+            except: 
+                MSoMPrint('ID:{} sendData nothing to send in queue timeout, continue'.format(self.id))
+
+        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
     def start(self):
         pass
 

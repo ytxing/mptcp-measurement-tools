@@ -8,51 +8,20 @@ import time
 from mytools import *
 
 class TestServer(ExpNode):
-    def __init__(self, id: str, connection: socket.socket, trunkSize=10, wait4Reply=True, waitTimer=10.0):
-        self.id: str = id
-        self.connection: socket.socket = connection
-        self.trunkSize = trunkSize
-        self.wait4Reply = wait4Reply
-        self.waitTimer: float = waitTimer
-
-        self.sendingThread = None
-        self.recvingThread = None
-        self.sendQueue = Queue(0)
-        self.queueLock = threading.Lock()
-        self.sendingThreadEnd = False
-        self.recvingThreadEnd = False
-        self.forceQuit = False # 不知道有没有用，用来强行停止线程
+    def __init__(self, id: str, connection: socket.socket, wait4Reply=True, waitTimer=10.0):
+        ExpNode.__init__(self, id, connection=connection, role='s', wait4Reply=wait4Reply, waitTimer=waitTimer)
 
     def recvData(self):
-        # Message格式: [(good) (end) (random string)]
         MSoMPrint('ID:{} start recving data'.format(self.id))
         bufferedStr = ''
         self.recvingThreadEnd = False
         while not self.forceQuit and not self.recvingThreadEnd:
             recvdStr = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
             bufferedStr += recvdStr
-            self.queueAllMsg(bufferedStr)
+            bufferedStr = self.putAllMsgInRecvQueue(bufferedStr)
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
 
-    def sendData(self):
-        MSoMPrint('ID:{} sendData start sending data'.format(self.id))
-        self.sendingThreadEnd = False
-        while not self.forceQuit and not self.sendingThreadEnd:
-            try:
-                msg: Message = self.getMsgFromQueue()
-                # msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                trunk = msg.trunk
-                MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
-                self.connection.sendall(trunk.encode(ENCODING))
-                MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
-                if msg.end:
-                    self.sendingThreadEnd = 1
-            except: 
-                MSoMPrint('ID:{} sendData nothing to send in queue timeout, force quit'.format(self.id))
-                self.forceQuit = 1
-
-        MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, int(self.sendingThreadEnd)))
 
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
@@ -96,5 +65,5 @@ while True:
     
     # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
     conn_id = 'time-ip-note'
-    testServer = TestServer(conn_id, connection, trunkSize=1200)
+    testServer = TestServer(conn_id, connection)
     testServer.start()
