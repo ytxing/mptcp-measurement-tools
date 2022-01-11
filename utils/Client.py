@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import random
 import socket
 import string
@@ -40,14 +39,12 @@ class Client(ExpNode):
         self.sendingThread.start()
         self.recvingThread.start()
 
-        # msg = Message(1, 0, self.typeCode, reqTrunkSize=100, size=1)
-        # print(msg.trunk)
-        # self.putMsgInSendQueue(msg)
-        # msg = Message(1, 0, self.typeCode, reqTrunkSize=100, size=1)
-        # print(msg.trunk)
-        # self.putMsgInSendQueue(msg)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
+        start_time = time.time()
+        self.putMsgInSendQueue(msg)
+        msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
+        self.putMsgInSendQueue(msg)
         msg = Message(1, 1, self.typeCode, reqTrunkSize=114514, size=1)
-        print(msg.trunk)
         self.putMsgInSendQueue(msg)
         MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
         time.sleep(1)
@@ -63,26 +60,27 @@ class Client(ExpNode):
         MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
         self.connection.close()
 
-parser = argparse.ArgumentParser(description="Msg client")
-parser.add_argument("-s", "--size", type=float, help="trunk size to send for each request", default=10)
-parser.add_argument("-r", "--round", type=int, help="the number of requests", default=1)
-parser.add_argument("-p", "--pattern", help="traffic pattern (bulk, streaming, ping, siri)", default='bulk')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Msg client")
+    parser.add_argument("-s", "--size", type=float, help="trunk size to send for each request", default=10)
+    parser.add_argument("-r", "--round", type=int, help="the number of requests", default=1)
+    parser.add_argument("-p", "--pattern", help="traffic pattern (bulk, streaming, ping, siri)", default='bulk')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
-# Bind the socket to the port
-server_address = ('0.0.0.0', 8001)
-print("Try to connect to %s port %s" % server_address)
-sock.connect(server_address)
+    # Bind the socket to the port
+    server_address = ('0.0.0.0', 8001)
+    MSoMPrint("Try to connect to %s port %s" % server_address)
+    sock.connect(server_address)
 
-# ytxing: TODO 这里客户端从collect_server获得当次实验的参数
+    # ytxing: TODO 这里客户端从collect_server获得当次实验的参数
 
-client = Client('test-client', connection=sock, type='bulk')
-client.start()
+    client = Client(id='test-client', connection=sock, type='bulk')
+    client.start()

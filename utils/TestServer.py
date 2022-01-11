@@ -22,16 +22,14 @@ class TestServer(ExpNode):
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
 
-    def replyMsg(self):
+    def replyMsgImmediately(self):
         replyEnd = False
         while not replyEnd:
             msg = self.getMsgFromRecvQueue()
             if msg != None:
                 self.putMsgInSendQueue(Message(good=msg.good, end=msg.end, type=msg.type, reqTrunkSize=0, size=msg.reqTrunkSize))
-                print(msg.reqTrunkSize)
                 replyEnd = msg.end
             
-
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
         self.recvingThread = threading.Thread(target=self.recvData)
@@ -39,43 +37,41 @@ class TestServer(ExpNode):
         self.sendingThread.start()
         self.recvingThread.start()
 
-        self.replyMsg()
+        self.replyMsgImmediately()
 
         self.sendingThread.join()
         self.recvingThread.join()
         MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
         self.connection.close()
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Msg server")
+    parser.add_argument("-s", "--sleep", type=float, help="sleep time between reception and sending", default=5.0)
+    parser.add_argument("-b", "--bytes", type=int, help="number of bytes to send and receive", default=1200)
 
-parser = argparse.ArgumentParser(description="Msg server")
-parser.add_argument("-s", "--sleep", type=float, help="sleep time between reception and sending", default=5.0)
-parser.add_argument("-b", "--bytes", type=int, help="number of bytes to send and receive", default=1200)
+    args = parser.parse_args()
 
-args = parser.parse_args()
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# Handle reusing the same 5-tuple if the previous one is still in TIME_WAIT
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+    # Bind the socket to the port
+    server_address = ('0.0.0.0', 8001)
+    MSoMPrint("Stating the server on %s port %s" % server_address)
+    sock.bind(server_address)
 
-# Bind the socket to the port
-server_address = ('0.0.0.0', 8001)
-MSoMPrint("Stating the server on %s port %s" % server_address)
-sock.bind(server_address)
-
-# Listen for incoming connections
-sock.listen(4)
-
-# Connection identifier
-
-while True:
-    # Wait for a connection
-    MSoMPrint("Waiting for a connection on %s port %s\n" % server_address)
-    connection, client_address = sock.accept()
+    # Listen for incoming connections
+    sock.listen(4)
     
-    # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
-    conn_id = 'time-ip-note'
-    testServer = TestServer(conn_id, connection)
-    testServer.start()
+    while True:
+        # Wait for a connection
+        MSoMPrint("Waiting for a connection on %s port %s\n" % server_address)
+        connection, client_address = sock.accept()
+        
+        # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
+        conn_id = 'time-ip-note'
+        testServer = TestServer(conn_id, connection)
+        testServer.start()

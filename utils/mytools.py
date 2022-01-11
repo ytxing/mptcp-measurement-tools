@@ -95,7 +95,6 @@ def unpackMsgStr(trunk: str) -> Message:
     if trunk[0] != '[' or trunk[-1] != ']':
         return None
     trunk_t = trunk[1:-1]
-    print(trunk_t, trunk_t[0:2], trunk_t[2:10], trunk_t[10:])
     ctrl = int(trunk_t[0:2], 16)
     good = 0b1 & (ctrl >> 7)
     end = 0b1 & (ctrl >> 6)
@@ -164,7 +163,6 @@ class ExpNode():
             if msg == None:
                 return s
             else:
-                print(msg.trunk, '+', s)
                 self.putMsgInRecvQueue(msg)
                 self.recvingThreadEnd = msg.end
                 MSoMPrint('ID:{} get a msg, put in queue End:{} Size:{} '.format(self.id, self.recvingThreadEnd, len(msg.trunk)))
