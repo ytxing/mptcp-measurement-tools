@@ -22,6 +22,15 @@ class TestServer(ExpNode):
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
 
+    def replyMsg(self):
+        replyEnd = False
+        while not replyEnd:
+            msg = self.getMsgFromRecvQueue()
+            if msg != None:
+                self.putMsgInSendQueue(Message(good=msg.good, end=msg.end, type=msg.type, reqTrunkSize=0, size=msg.reqTrunkSize))
+                print(msg.reqTrunkSize)
+                replyEnd = msg.end
+            
 
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
@@ -29,6 +38,9 @@ class TestServer(ExpNode):
         self.sendingThread = threading.Thread(target=self.sendData)
         self.sendingThread.start()
         self.recvingThread.start()
+
+        self.replyMsg()
+
         self.sendingThread.join()
         self.recvingThread.join()
         MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))

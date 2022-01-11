@@ -100,7 +100,7 @@ def unpackMsgStr(trunk: str) -> Message:
     good = 0b1 & (ctrl >> 7)
     end = 0b1 & (ctrl >> 6)
     type = 0b111 & (ctrl >> 3)
-    reqTrunkSize = 0xffff & (int(trunk_t[2:10], 16))
+    reqTrunkSize = 0xffffffff & (int(trunk_t[2:10], 16))
     return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyTrunk=trunk)
 
 class ExpNode():
