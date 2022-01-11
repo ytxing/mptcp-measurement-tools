@@ -53,9 +53,7 @@ class Client(ExpNode):
         self.sendingThreadEnd = False
         while not self.forceQuit and not self.sendingThreadEnd:
             try:
-                # self.queueLock.acquire()
-                msg: Message = self.sendQueue.get(timeout=self.waitTimer)
-                # self.queueLock.release()
+                msg: Message = self.getMsgFromQueue()
                 trunk = msg.trunk
                 MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
                 self.connection.sendall(trunk.encode(ENCODING))
@@ -65,21 +63,7 @@ class Client(ExpNode):
             except: 
                 MSoMPrint('ID:{} sendData nothing to send in queue timeout, continue'.format(self.id))
 
-        
         MSoMPrint('ID:{} sendData stop sending data Force:{} End:{}'.format(self.id, self.forceQuit, self.sendingThreadEnd))
-
-    def putMsgInQueue(self, msg: Message):
-        # self.queueLock.acquire()
-        self.sendQueue.put(msg)
-        # self.queueLock.release()
-
-    def getMsgFromQueue(self) -> Message:
-        try:
-            # self.queueLock.acquire()
-            self.sendQueue.get(timeout=self.waitTimer)
-            # self.queueLock.release()
-        except:
-            raise
 
     def start(self):
         # 首先发送初始request给服务器，如有需要继续发送其他的
@@ -109,10 +93,6 @@ class Client(ExpNode):
         self.recvingThread.join()
         MSoMPrint('ID:{} runExp stop closing the socket'.format(self.id))
         self.connection.close()
-
-
-
-        return self
 
 parser = argparse.ArgumentParser(description="Msg client")
 parser.add_argument("-s", "--size", type=float, help="trunk size to send for each request", default=10)

@@ -101,7 +101,7 @@ def unpackMsgStr(msgStr: str) -> Message:
     return Message(good=good, end=end, reqTrunkSize=reqTrunkSize, type=type, copyString=randomStr)
 
 class ExpNode():
-    def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=10.0):
+    def __init__(self, id: str, connection: socket.socket, reqTrunkSize, trunkSize, round, role:str, type:str, wait4Reply=True, waitTimer=100.0):
         self.id: str = id
         self.connection: socket.socket = connection
         self.reqTrunkSize = reqTrunkSize # need to be less than 0xFFFFFFFF = 4294967295 ~= 4.2GB
@@ -153,6 +153,11 @@ class ExpNode():
             return msg, s
 
     def queueAllMsg(self, bufferedStr: str) -> str:
+        '''
+        queueAllMsg decodes the bufferedStr and get Messages from it
+        if it does not find any Message, it returns the original bufferedStr and puts nothing in queue.
+        or it queues all Messages and returns the string except for the queued Messages.
+        '''
         s = bufferedStr
         while len(s) > 0:
             msg, s = self.getOneMsg(s)
