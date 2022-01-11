@@ -80,6 +80,22 @@ class ConnectToCollectServer:
 		if subprocess.call(cmd, shell = True):
 			raise Exception("{} failed".format(cmd))
 
+	#回显拥塞控制算法
+	def getCongestionControl(self) -> str:
+		cmd = "ssh - p " + self.dataServerSSHPort + ' ' + self.dataServerName + "sudo sysctl net.ipv4.tcp_congestion_control"
+		p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
+		congestionControl = p.stdout.read()
+		congestionControl = str(congestionControl, encoding = self.codeMode)
+		return congestionControl
+
+	#回显调度算法
+	def getScheduler(self) -> str:
+		cmd = "ssh - p " + self.dataServerSSHPort + ' ' + self.dataServerName + "sudo sysctl net.mptcp.mptcp_scheduler"
+		p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
+		scheduler = p.stdout.read()
+		scheduler = str(scheduler, encoding = self.codeMode)
+		return scheduler
+
 	# 获取client的IP地址，便于在tcpdump时指定host，同时在结束实验时通过相关命令定位到指定进程
 	def clientGetIpv4(self) -> List[str]:
 		devnull = open(os.devnull, "w")
@@ -105,6 +121,11 @@ class ConnectToCollectServer:
 		self.clientDirectoryPath = directoryPath
 		self.checkDirectoryExist(directoryPath)
 
+	def createFile(self, fileName):
+		file = os.path.join(fileName, self.clientDirectoryPath)
+		if not os.access(file, os.F_OK):
+			os.mknod(file)
+
 	def postToCollectServer(self):
 		for fileName in self.toPost:
 			absPath = self.clientDirectoryPath + '/' + fileName
@@ -128,6 +149,10 @@ class ConnectToCollectServer:
 			self.dataServerIP = expList[2]
 			# TODO 这里的dataServerUserName是data server的用户名，data server尽量都起一个名字，便于操作
 			self.dataServerName = self.dataServerUserName + '@' + self.dataServerIP
-			self.setCongestionControl()
 			self.setScheduler()
+			#TODO 如果长时间未成功加一个通知机制
+			while self.congestionControl != self.getCongestionControl():
+				self.setCongestionControl()
+			while self.scheduler != self.getScheduler():
+				self.setScheduler()
 			self.createDirectory()
