@@ -46,14 +46,13 @@ def getExpType(role: str, type: str) -> int:
         return None
 
     return t
-
 class Message():
     '''
     structure:
 
     |   0   |   0   |  0 0 0   |  0 0 0  | 0 ~ 255 (0xff)
 
-    |  good |  end  |   type   |  unused |
+    |  good:1 |  end:1  |   type:3   |  unused |
 
     |  type: server:1/client:0 + Ping:00 / Bulk:01 / Streaming: 10 / Siri:11
     '''
@@ -161,6 +160,7 @@ class ExpNode():
         while len(s) > 0:
             msg, s = self.getOneMsg(s)
             if msg == None:
+                print('none msg')
                 return s
             else:
                 self.putMsgInRecvQueue(msg)
@@ -214,18 +214,7 @@ class ExpNode():
         pass
 
 if __name__ == '__main__':
-    # good = 1
-    # end = 1
-    # type = 7
-    # for i in range(good + 1):
-    #     for j in range(end + 1):
-    #         for k in range(type + 1):
-    #             msg = Message(good, end, type, size=random.randint(0, 1200))
-    #             unpackedMsg = unpackMsgStr(msg.trunk)
-    #             if msg.ctrl == unpackedMsg.ctrl:
-    #                 continue
-    #             print('???')
-    # print(bin(getExpType('c', 'siri')))
+
     msg = Message(1, 1, 0b011, size=20, reqTrunkSize=255)
     print(msg.trunk)
     print('ctrl', bin(msg.ctrl))

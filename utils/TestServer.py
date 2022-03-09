@@ -23,6 +23,9 @@ class TestServer(ExpNode):
         MSoMPrint('ID:{} stop recving data Force:{} End:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd))
 
     def replyMsgImmediately(self):
+        '''
+        send required-sized messages according to the received msgs in RecvQueue.
+        '''
         replyEnd = False
         while not replyEnd:
             msg = self.getMsgFromRecvQueue()

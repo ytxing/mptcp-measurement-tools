@@ -8,6 +8,9 @@ from mytools import *
 class Client(ExpNode):
     def __init__(self, id: str, connection: socket.socket, type:str, wait4Reply=True, waitTimer=10.0):
         ExpNode.__init__(self, id, connection=connection, role='c', type=type, wait4Reply=wait4Reply, waitTimer=waitTimer)
+        self.bytesQuired = 0
+        self.experiments: Queue = Queue(0)
+        self.done: bool = False
 
     def recvData(self):
         # Message格式: [(good) (end) (random string)]
@@ -17,11 +20,16 @@ class Client(ExpNode):
         self.recvingThreadEnd = False
         while not self.forceQuit and not self.recvingThreadEnd:
             recvdStr = self.connection.recv(APP_READ_BUFFER_SIZE).decode(ENCODING)
+            # print(len(recvdStr))
             bufferedStr += recvdStr
             bytesRecved += len(recvdStr)
             bufferedStr = self.putAllMsgInRecvQueue(bufferedStr)
 
-            MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(recvdStr), bytesRecved))
+            MSoMPrint('ID:{} bytesRecved + {} = {} {}'.format(self.id, len(recvdStr), bytesRecved, self.bytesQuired))
+            # if bytesRecved >= self.bytesQuired:
+            #     MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(recvdStr), bytesRecved))
+            #     self.recvingThreadEnd = True
+
             # if bytesRecved >= self.trunkSize * self.round:
             #     self.recvingThreadEnd = True
             #     break
@@ -29,23 +37,36 @@ class Client(ExpNode):
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{} bytesRecved:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd, bytesRecved))
 
+    def putExp(self, reqTrunkSize: int):
+        self.experiments.put(reqTrunkSize)
+
+    def doneExp(self):
+        self.done = True
+
+    def getExp(self) -> int:
+        try:
+            return self.experiments.get(block=False)
+        finally:
+            return None
 
     def start(self):
         '''
-        对于每一种Application，继承Client类并重写start函数，按照应用的要求使用putMsgInQueue()和getMsgFromQueue()来控制数据的发送和接收。
+        对于每一种Application,继承Client类并重写start函数,按照应用的要求使用putMsgInQueue()和getMsgFromQueue()来控制数据的发送和接收. TODO
         '''
         self.recvingThread = threading.Thread(target=self.recvData)
         self.sendingThread = threading.Thread(target=self.sendData)
         self.sendingThread.start()
         self.recvingThread.start()
 
-        msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
-        start_time = time.time()
+
+        msg = Message(good=1, end=0, type=self.typeCode, reqTrunkSize=512*1024, size=1)
         self.putMsgInSendQueue(msg)
-        msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
+        msg = Message(good=1, end=1, type=self.typeCode, reqTrunkSize=512*1024, size=1)
         self.putMsgInSendQueue(msg)
-        msg = Message(1, 1, self.typeCode, reqTrunkSize=114514, size=1)
-        self.putMsgInSendQueue(msg)
+        # msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
+        # self.putMsgInSendQueue(msg)
+        # msg = Message(1, 1, self.typeCode, reqTrunkSize=100000, size=1)
+        # self.putMsgInSendQueue(msg)
         MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
         time.sleep(1)
 
