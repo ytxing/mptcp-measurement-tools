@@ -40,17 +40,23 @@ host = socket.gethostname()
 port = 9999
 
 # 绑定端口号
-serversocket.bind((host, port))
+serversocket.bind(('127.0.0.1', port))
 
 # 设置最大连接数，超过后排队
 serversocket.listen(5)
+print(host, port)
+while True:
+    clientsocket,addr = serversocket.accept()
 
-clientsocket,addr = serversocket.accept()      
+    print("连接地址: %s" % str(addr))
 
-print("连接地址: %s" % str(addr))
-read_t = readingThread(clientsocket)
-send_t = sendingThread(clientsocket)
-read_t.start()
-send_t.start()
-read_t.join()
-send_t.join()
+    with open('/home/ytxing/mptcpwireless-measurement/test/test1000m', 'r') as f:
+        trunk = f.read()
+    clientsocket.sendall(trunk.encode())
+    clientsocket.close()
+# read_t = readingThread(clientsocket)
+# send_t = sendingThread(clientsocket)
+# read_t.start()
+# send_t.start()
+# read_t.join()
+# send_t.join()

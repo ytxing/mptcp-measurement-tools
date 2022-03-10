@@ -9,6 +9,8 @@ import re
 import threading
 from typing import Tuple
 
+from numpy import size
+
 APP_READ_BUFFER_SIZE = 2048 * 1024 
 ENCODING = 'utf-8'
 
@@ -115,6 +117,7 @@ class ExpNode():
         self.sendingThread = None
         self.recvingThread = None
         self.sendQueue = Queue(0)
+        self.sendRandomQueue = Queue(0)
         self.recvQueue = Queue(0)
         self.queueLock = threading.Lock()
         self.sendingThreadEnd = False
@@ -168,15 +171,27 @@ class ExpNode():
                 MSoMPrint('ID:{} get a msg, put in queue End:{} Size:{} '.format(self.id, self.recvingThreadEnd, len(msg.trunk)))
         return s
 
-    def putMsgInSendQueue(self, msg: Message) -> Message:
+    def putMsgInSendQueue(self, msg: Message):
         self.queueLock.acquire()
         self.sendQueue.put(msg)
+        self.queueLock.release()
+
+    def putSizeInSendRandomQueue(self, size):
+        self.queueLock.acquire()
+        self.sendRandomQueue.put(size)
         self.queueLock.release()
 
     def getMsgFromSendQueue(self) -> Message:
         try:
             msg = self.sendQueue.get(timeout=self.waitTimer)
             return msg
+        except:
+            raise
+
+    def getSizeFromSendRandomQueue(self):
+        try:
+            size = self.sendRandomQueue.get(timeout=self.waitTimer)
+            return size
         except:
             raise
 
@@ -204,6 +219,31 @@ class ExpNode():
                 MSoMPrint('ID:{} sendData sending a trunk len:{}'.format(self.id, len(trunk)))
                 self.connection.sendall(trunk.encode(ENCODING))
                 MSoMPrint('ID:{} sendData sent a trunk len:{}'.format(self.id, len(trunk)))
+                if msg.end:
+                    self.sendingThreadEnd = 1
+            except: 
+                MSoMPrint('ID:{} sendData nothing to send in queue timeout, continue'.format(self.id))
+    
+    def sendRandomData(self):
+        MSoMPrint('ID:{} sendRandomData start sending data'.format(self.id))
+        self.sendingThreadEnd = False
+        while not self.forceQuit and not self.sendingThreadEnd:
+            try:
+                size = self.getSizeFromSendRandomQueue()
+                MSoMPrint('ID:{} sendRandomData sending a trunk len:{}'.format(self.id, size))
+                trunk = 1024*1024
+                print(trunk)
+                n = int(size/trunk)
+                l = size % trunk
+                print(n,l)
+                # for i in range(n):
+                #     # print(i)
+                #     self.connection.sendall(string_generator(size=trunk).encode(ENCODING))
+                # self.connection.sendall(string_generator(size=l).encode(ENCODING))
+                with open('/home/ytxing/mptcpwireless-measurement/test100m', 'r') as f:
+                    trunk = f.read()
+                self.connection.sendall(trunk.encode(ENCODING))
+                MSoMPrint('ID:{} sendRandomData sent a trunk len:{}'.format(self.id, size))
                 if msg.end:
                     self.sendingThreadEnd = 1
             except: 

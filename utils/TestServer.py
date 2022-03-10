@@ -30,13 +30,15 @@ class TestServer(ExpNode):
         while not replyEnd:
             msg = self.getMsgFromRecvQueue()
             if msg != None:
-                self.putMsgInSendQueue(Message(good=msg.good, end=msg.end, type=msg.type, reqTrunkSize=0, size=msg.reqTrunkSize))
+                MSoMPrint('ID:{} {}'.format(self.id, msg.reqTrunkSize))
+                self.putSizeInSendRandomQueue(msg.reqTrunkSize)
                 replyEnd = msg.end
+                self.sendingThreadEnd = msg.end
             
     def start(self):
         # TODO 创建并开启两个线程，初始化queue
         self.recvingThread = threading.Thread(target=self.recvData)
-        self.sendingThread = threading.Thread(target=self.sendData)
+        self.sendingThread = threading.Thread(target=self.sendRandomData)
         self.sendingThread.start()
         self.recvingThread.start()
 
@@ -73,7 +75,6 @@ if __name__ == '__main__':
         # Wait for a connection
         MSoMPrint("Waiting for a connection on %s port %s\n" % server_address)
         connection, client_address = sock.accept()
-        
         # 这里先用这个connection传输一些用于初始化TestServer的信息，用这些信息来创建下面的testServer
         conn_id = 'time-ip-note'
         testServer = TestServer(conn_id, connection)

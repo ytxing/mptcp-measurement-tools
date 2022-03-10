@@ -5,10 +5,23 @@ import string
 import time
 import types
 from mytools import *
+
+
+# server_address = ('192.168.5.136', 8001)
+server_address = ('127.0.0.1', 8001)
 class Client(ExpNode):
-    def __init__(self, id: str, connection: socket.socket, type:str, wait4Reply=True, waitTimer=10.0):
+    def __init__(self, id: str, connection: socket.socket, type:str, wait4Reply=True, waitTimer=10.0, bytesRequired=1024):
         ExpNode.__init__(self, id, connection=connection, role='c', type=type, wait4Reply=wait4Reply, waitTimer=waitTimer)
-        self.bytesQuired = 0
+        if type == 'bulk':
+            self.bytesRequired = 100*1024*1024
+        elif type == 'stream':
+            self.bytesRequired = 10*1024*1024
+        elif type == 'ping':
+            self.bytesRequired = 10
+        else:
+            self.bytesRequired = 10
+
+        
         self.experiments: Queue = Queue(0)
         self.done: bool = False
 
@@ -23,16 +36,16 @@ class Client(ExpNode):
             # print(len(recvdStr))
             bufferedStr += recvdStr
             bytesRecved += len(recvdStr)
-            bufferedStr = self.putAllMsgInRecvQueue(bufferedStr)
+            # bufferedStr = self.putAllMsgInRecvQueue(bufferedStr)
 
-            MSoMPrint('ID:{} bytesRecved + {} = {} {}'.format(self.id, len(recvdStr), bytesRecved, self.bytesQuired))
-            # if bytesRecved >= self.bytesQuired:
+            MSoMPrint('ID:{} bytesRecved + {} = {} {}'.format(self.id, len(recvdStr), bytesRecved, self.bytesRequired))
+            # if bytesRecved >= self.bytesRequired:
             #     MSoMPrint('ID:{} bytesRecved + {} = {}'.format(self.id, len(recvdStr), bytesRecved))
             #     self.recvingThreadEnd = True
 
-            # if bytesRecved >= self.trunkSize * self.round:
-            #     self.recvingThreadEnd = True
-            #     break
+            if bytesRecved >= self.bytesRequired:
+                self.recvingThreadEnd = True
+                break
             # ytxing: TODO 这里就可以通过处理这个trunk获得各种信息 
 
         MSoMPrint('ID:{} stop recving data Force:{} End:{} bytesRecved:{}'.format(self.id, self.forceQuit, self.recvingThreadEnd, bytesRecved))
@@ -59,22 +72,22 @@ class Client(ExpNode):
         self.recvingThread.start()
 
 
-        msg = Message(good=1, end=0, type=self.typeCode, reqTrunkSize=512*1024, size=1)
-        self.putMsgInSendQueue(msg)
-        msg = Message(good=1, end=1, type=self.typeCode, reqTrunkSize=512*1024, size=1)
+        # msg = Message(good=1, end=0, type=self.typeCode, reqTrunkSize=512*1024, size=1)
+        # self.putMsgInSendQueue(msg)
+        msg = Message(good=1, end=1, type=self.typeCode, reqTrunkSize=self.bytesRequired, size=1)
         self.putMsgInSendQueue(msg)
         # msg = Message(1, 0, self.typeCode, reqTrunkSize=100000, size=1)
         # self.putMsgInSendQueue(msg)
         # msg = Message(1, 1, self.typeCode, reqTrunkSize=100000, size=1)
         # self.putMsgInSendQueue(msg)
         MSoMPrint(self.id, 'putting msg in queue type:{} ctrl:{:08b}'.format(bin(msg.type), msg.ctrl))
-        time.sleep(1)
+        # time.sleep(1)
 
         # ytxing: TODO 实验结束时
-        expDone = True
-        if expDone:
-            self.sendingThreadEnd = 1
-            self.recvingThreadEnd = 1
+        # expDone = True
+        # if expDone:
+        #     self.sendingThreadEnd = 1
+        #     self.recvingThreadEnd = 1
 
         self.sendingThread.join()
         self.recvingThread.join()
@@ -97,10 +110,8 @@ if __name__ == '__main__':
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
     # Bind the socket to the port
-    server_address = ('0.0.0.0', 8001)
     MSoMPrint("Try to connect to %s port %s" % server_address)
     sock.connect(server_address)
-
     # ytxing: TODO 这里客户端从collect_server获得当次实验的参数
 
     client = Client(id='test-client', connection=sock, type='bulk')
