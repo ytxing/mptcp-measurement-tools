@@ -1,5 +1,6 @@
 import requests
 import time
+import sys
 
 def formatFloat(num):
     return '{:.2f}'.format(num)
@@ -10,8 +11,7 @@ def getTimeMs():
 def getTimeS():
     return time.time()
 
-def downloadFile(name, url):
-    s = requests.Session()
+def downloadFile(name, url, s: requests.Session):
     r = s.get(url, stream=True)
     total_len = float(r.headers['content-length'])
     print("content-length: {}".format(total_len))
@@ -33,4 +33,5 @@ def downloadFile(name, url):
 
     
 if __name__ == '__main__':
-    downloadFile('test1000m', 'http://192.168.5.136/trunk/test1000m')
+    s = requests.Session()
+    downloadFile('test1000m', 'http://192.168.5.136/trunk/test1000m', s)
