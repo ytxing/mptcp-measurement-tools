@@ -28,9 +28,9 @@ def downloadFile(name, url, s: requests.Session):
                 p = curr_len / total_len * 100
                 speed = (curr_len - curr_len_last) / (1024 * 1024) / (time_now - time_last) * 1000
                 curr_len_last = curr_len
-                print(name + ': Size: {}/{} '.format(curr_len, int(total_len)) + formatFloat(p) + '%' + ' Speed: ' + formatFloat(speed) + 'M/S Time: ' + formatFloat(time_now - time_start) + 'ms')
+                print(name + ': Size: {}/{} '.format(curr_len, int(total_len)) + formatFloat(p) + '%' + ' Speed: ' + formatFloat(speed) + 'M/S Time: ' + formatFloat(time_now - time_last) + 'ms')
                 time_last = getTimeMs()
-
+    print("{}: Size: {} Speed: {}M/S Time:{}ms".format(name, int(total_len), formatFloat(speed), formatFloat(time_now - time_start)))
     
 if __name__ == '__main__':
     s = requests.Session()
