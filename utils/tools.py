@@ -41,9 +41,9 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
     time_start = getTimeMs()
     r = s.get(url, stream=True)
     if r.status_code >= 300:
-        logger.log('WRONG!\t status_code:{}'.format(r.status_code))
+        logger.log('GET WRONG\t status_code:{}'.format(r.status_code))
     else:
-        logger.log('status_code:{}'.format(r.status_code))
+        logger.log('GET status_code:{}'.format(r.status_code))
     total_len = float(r.headers['content-length'])
     logger.log("content-length(B):{} get_response(ms):{:.3f}".format(total_len, getTimeMs() - time_start))
     curr_len = 0
