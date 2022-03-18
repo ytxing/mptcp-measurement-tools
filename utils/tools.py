@@ -5,7 +5,7 @@ import time
 import sys
 
 class Logger:
-    def __init__(self, prefix: str='prefix', log_file: str='log_empty', log_level: int=0):
+    def __init__(self, prefix: str='nonprefix', log_file: str='log_empty', log_level: int=0):
         self.prefix = prefix
         self.log_file = log_file
         self.log_level = log_level
@@ -59,12 +59,12 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
                 speed *= 1000
                 speed /= 1024*1024
                 curr_len_last = curr_len
-                logger.log('Loading... name:{} size(B):{} percentage(%/{}):{:.3f} speed(mBps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
+                logger.log('Loading name:{} size(B):{} percentage(%/{}):{:.3f} speed(mBps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
                 time_last = getTimeMs()
     speed = curr_len / (time_now - time_start)
     speed *= 1000
     speed /= 1024*1024
-    logger.log('Complete! name:{} size(B):{} percentage(/{}):{:.3f} speed(mBps):{:.3f} total_time(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_start))
+    logger.log('Complete name:{} size(B):{} percentage(/{}):{:.3f} speed(mBps):{:.3f} total_time(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_start))
     return r.status_code, total_len, (time_now - time_start), speed
     
 if __name__ == '__main__':

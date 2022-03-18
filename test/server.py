@@ -37,6 +37,7 @@ serversocket = socket.socket(
 # 获取本地主机名
 host = socket.gethostname()
 
+
 port = 9999
 
 # 绑定端口号

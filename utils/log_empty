@@ -1,4 +1,0 @@
-[prefix][2022-03-18-16-45-50][0.001616] status_code:200
-[prefix][2022-03-18-16-45-50][0.001668] content-length(B):10.0 get_response(ms):1.657
-[prefix][2022-03-18-16-45-50][0.001748] Loading... name:test10B size(B):10 percentage(%/10):100.000 speed(mBps):0.005 interval(ms):1.735
-[prefix][2022-03-18-16-45-50][0.001786] Complete! name:test10B size(B):10 percentage(/10):100.000 speed(mBps):0.005 total_time(ms):1.734
