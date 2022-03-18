@@ -1,16 +1,16 @@
 import threading
 import queue
 import requests
-import download
+import tools
 import time
 server_addr = '192.168.5.136'
 def GoBulk(s: requests.Session):
-    download.downloadFile('test100m', 'http://192.168.5.136/trunk/test100m', s)
-
+    tools.downloadFile('test10M', 'http://192.168.5.136/trunk/test10M', s)
 
 class MimicPlayer:
-    def __init__(self, s: requests.Session):
+    def __init__(self, s: requests.Session, r: str = '1920x1080_8000k'):
         self.session: requests.Session = s
+        self.resolution = r
         self.replay_buffer: queue.Queue = queue.Queue(0)
         self.buffer_length = 10
         self.get_seg: bool = True
@@ -32,12 +32,13 @@ class MimicPlayer:
                 start = time.time()
                 seg = self.replay_buffer.get(timeout=60)
             except:
-                print("queue timeout, something wrong")
+                tools.printLog("queue timeout, something wrong")
                 break
             else:
                 self.timer_pause += time.time() - start
+                tools.printLog("pasue for {:.4f}s".format(time.time() - start))
                 if seg is not None and seg == 4:
-                    print("play seg{}, 4s".format(self.played_seg_count))
+                    tools.printLog("playing seg{}, 4s".format(self.played_seg_count))
                     time.sleep(seg)
                     self.played_seg_count += 1
 
@@ -70,8 +71,8 @@ class MimicPlayer:
         s = self.session
         # time the first seg
         time_start = time.time()
-        download.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s)
-        download.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s)
+        tools.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s)
+        tools.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s)
         self.got_seg_count += 1
         self.replay_buffer.put(4)
         self.timer_start = time.time() - time_start 
@@ -81,21 +82,16 @@ class MimicPlayer:
         while self.got_seg_count < self.total_seg_count:
             qsize = self.replay_buffer.qsize()
             if qsize <= 0.5 * self.buffer_length:
-                print("qsize: {}, get seg".format(qsize))
-                download.downloadFile('bbb_30fps_1920x1080_8000k_4s_{}.m4v'.format(self.got_seg_count), 'http://192.168.5.136/stream/bbb_30fps_1920x1080_8000k_4s.m4v', s)
+                tools.printLog("qsize: {}, get seg".format(qsize))
+                tools.downloadFile('bbb_30fps_{}_4s_{}.m4v'.format(self.resolution, self.got_seg_count), 'http://192.168.5.136/stream/bbb_30fps_{}_4s.m4v'.format(self.resolution), s)
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
         
         self.PlayerThreading.join()
         # self.TimerThreading.join()
-        print("start: {:.2f}s all: {:.2f}s pause:{:.2f}s".format(self.timer_start, self.timer_all, self.timer_pause))
+        tools.printLog("start: {:.4f}s all: {:.4f}s pause:{:.4f}s".format(self.timer_start, self.timer_all, self.timer_pause))
 
-
-
-
-
-
-def GoStream(s: requests.Session):
+def GoStream(s: requests.Session, r: str = '1920x1080_8000k'):
     '''
     bbb_30fps.mpd
     bbb_30fps_0.m4v
@@ -113,14 +109,20 @@ def GoStream(s: requests.Session):
     # download.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s)
     # download.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s)
     # replay_buffer.put(4) # each seg lasts for 4 seconds
-    player = MimicPlayer(s)
+    player = MimicPlayer(s, r)
     player.start()
 
+def GoPing(s: requests.Session):
+    # 这两次得到的时延有较大的差距，因为第一次需要三次握手
+    tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
+    tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
 
 if __name__ == '__main__':
     
     s = requests.Session()
     start = time.time()
-    GoStream(s)
-    print("{} in all".format(time.time() - start))
+    GoStream(s, r = '1024x576_2500k')
     # GoBulk(s)
+    # GoPing(s)
+
+    tools.printLog("{} in all".format(time.time() - start))

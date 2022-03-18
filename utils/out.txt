@@ -1,0 +1,444 @@
+content-length: 3060.0
+bbb_30fps.mpd: Size: 3060/3060 100.00% Speed: 33.39M/S Time: 0.09ms
+bbb_30fps.mpd: Size: 3060 Speed: 33.39M/S Time:0.09ms
+content-length: 707.0
+bbb_30fps_0.m4v: Size: 707/707 100.00% Speed: 20.92M/S Time: 0.03ms
+bbb_30fps_0.m4v: Size: 707 Speed: 20.92M/S Time:0.03ms
+pasue for 6.67572021484375e-06s
+play seg0, 4s
+qsize: 1, get seg
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 62976/3719906 1.69% Speed: 0.57M/S Time: 105.96ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 147456/3719906 3.96% Speed: 0.77M/S Time: 104.55ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 233472/3719906 6.28% Speed: 0.75M/S Time: 109.85ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 315392/3719906 8.48% Speed: 0.77M/S Time: 102.09ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 384000/3719906 10.32% Speed: 0.63M/S Time: 103.90ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 449536/3719906 12.08% Speed: 0.60M/S Time: 104.79ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 514048/3719906 13.82% Speed: 0.58M/S Time: 106.32ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 592896/3719906 15.94% Speed: 0.72M/S Time: 104.28ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 677376/3719906 18.21% Speed: 0.75M/S Time: 106.87ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 785408/3719906 21.11% Speed: 1.01M/S Time: 102.28ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 845312/3719906 22.72% Speed: 0.55M/S Time: 103.78ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 906752/3719906 24.38% Speed: 0.59M/S Time: 100.13ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 976896/3719906 26.26% Speed: 0.63M/S Time: 106.62ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1036800/3719906 27.87% Speed: 0.57M/S Time: 100.14ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1099264/3719906 29.55% Speed: 0.59M/S Time: 100.59ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1165312/3719906 31.33% Speed: 0.57M/S Time: 109.94ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1249792/3719906 33.60% Speed: 0.73M/S Time: 109.91ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1335808/3719906 35.91% Speed: 0.78M/S Time: 104.60ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1413120/3719906 37.99% Speed: 0.66M/S Time: 111.40ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1500672/3719906 40.34% Speed: 0.74M/S Time: 112.37ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1576960/3719906 42.39% Speed: 0.70M/S Time: 104.38ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1649664/3719906 44.35% Speed: 0.68M/S Time: 101.73ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1721344/3719906 46.27% Speed: 0.68M/S Time: 100.58ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1784320/3719906 47.97% Speed: 0.59M/S Time: 102.03ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1853952/3719906 49.84% Speed: 0.61M/S Time: 108.86ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1924096/3719906 51.72% Speed: 0.64M/S Time: 104.10ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 1985536/3719906 53.38% Speed: 0.58M/S Time: 101.07ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2062848/3719906 55.45% Speed: 0.67M/S Time: 110.40ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2131456/3719906 57.30% Speed: 0.64M/S Time: 102.71ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2194432/3719906 58.99% Speed: 0.58M/S Time: 102.97ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2271744/3719906 61.07% Speed: 0.69M/S Time: 106.39ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2350080/3719906 63.18% Speed: 0.75M/S Time: 100.00ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2405888/3719906 64.68% Speed: 0.51M/S Time: 103.82ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2471936/3719906 66.45% Speed: 0.60M/S Time: 105.76ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2549248/3719906 68.53% Speed: 0.73M/S Time: 101.57ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2614784/3719906 70.29% Speed: 0.56M/S Time: 111.61ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2686464/3719906 72.22% Speed: 0.65M/S Time: 105.25ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2769408/3719906 74.45% Speed: 0.72M/S Time: 110.46ms
+pasue for 2.3365020751953125e-05s
+play seg1, 4s
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2836992/3719906 76.27% Speed: 0.60M/S Time: 107.34ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2897920/3719906 77.90% Speed: 0.58M/S Time: 100.16ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 2966528/3719906 79.75% Speed: 0.62M/S Time: 105.44ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3038208/3719906 81.67% Speed: 0.64M/S Time: 106.41ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3101184/3719906 83.37% Speed: 0.57M/S Time: 105.88ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3167744/3719906 85.16% Speed: 0.63M/S Time: 100.00ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3244032/3719906 87.21% Speed: 0.67M/S Time: 108.74ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3309568/3719906 88.97% Speed: 0.59M/S Time: 105.13ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3377152/3719906 90.79% Speed: 0.62M/S Time: 103.79ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3445760/3719906 92.63% Speed: 0.60M/S Time: 109.05ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3523072/3719906 94.71% Speed: 0.73M/S Time: 100.51ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3585536/3719906 96.39% Speed: 0.57M/S Time: 104.46ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3650048/3719906 98.12% Speed: 0.59M/S Time: 104.14ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3719906/3719906 100.00% Speed: 0.78M/S Time: 85.92ms
+bbb_30fps_1920x1080_8000k_4s_2.m4v: Size: 3719906 Speed: 0.78M/S Time:5442.23ms
+qsize: 1, get seg
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 87552/3719906 2.35% Speed: 0.83M/S Time: 101.02ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 157696/3719906 4.24% Speed: 0.63M/S Time: 105.40ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 221696/3719906 5.96% Speed: 0.57M/S Time: 106.50ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 297984/3719906 8.01% Speed: 0.72M/S Time: 101.55ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 368128/3719906 9.90% Speed: 0.63M/S Time: 106.73ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 442368/3719906 11.89% Speed: 0.70M/S Time: 101.07ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 509440/3719906 13.69% Speed: 0.57M/S Time: 111.77ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 578048/3719906 15.54% Speed: 0.63M/S Time: 104.24ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 661504/3719906 17.78% Speed: 0.74M/S Time: 107.15ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 738816/3719906 19.86% Speed: 0.73M/S Time: 101.03ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 804352/3719906 21.62% Speed: 0.57M/S Time: 109.69ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 872960/3719906 23.47% Speed: 0.62M/S Time: 106.32ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 940032/3719906 25.27% Speed: 0.60M/S Time: 107.23ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1036800/3719906 27.87% Speed: 0.88M/S Time: 104.76ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1121280/3719906 30.14% Speed: 0.77M/S Time: 104.40ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1197056/3719906 32.18% Speed: 0.71M/S Time: 102.45ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1258496/3719906 33.83% Speed: 0.58M/S Time: 101.57ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1322496/3719906 35.55% Speed: 0.59M/S Time: 103.02ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1398784/3719906 37.60% Speed: 0.70M/S Time: 103.30ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1473024/3719906 39.60% Speed: 0.63M/S Time: 113.19ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1539072/3719906 41.37% Speed: 0.61M/S Time: 103.87ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1635328/3719906 43.96% Speed: 0.83M/S Time: 110.94ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1708032/3719906 45.92% Speed: 0.67M/S Time: 103.72ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1767936/3719906 47.53% Speed: 0.56M/S Time: 101.16ms
+pasue for 2.5033950805664062e-05s
+play seg2, 4s
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1833984/3719906 49.30% Speed: 0.63M/S Time: 100.16ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1913856/3719906 51.45% Speed: 0.74M/S Time: 102.78ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 1973760/3719906 53.06% Speed: 0.56M/S Time: 101.19ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2051072/3719906 55.14% Speed: 0.73M/S Time: 100.82ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2131456/3719906 57.30% Speed: 0.73M/S Time: 104.35ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2200064/3719906 59.14% Speed: 0.61M/S Time: 107.04ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2281984/3719906 61.35% Speed: 0.71M/S Time: 109.32ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2338816/3719906 62.87% Speed: 0.54M/S Time: 100.21ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2401792/3719906 64.57% Speed: 0.58M/S Time: 103.61ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2470400/3719906 66.41% Speed: 0.62M/S Time: 104.71ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2553344/3719906 68.64% Speed: 0.73M/S Time: 108.41ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2620928/3719906 70.46% Speed: 0.59M/S Time: 108.77ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2688000/3719906 72.26% Speed: 0.61M/S Time: 104.18ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2770944/3719906 74.49% Speed: 0.72M/S Time: 110.38ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2832384/3719906 76.14% Speed: 0.58M/S Time: 101.39ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2916864/3719906 78.41% Speed: 0.75M/S Time: 106.73ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 2972672/3719906 79.91% Speed: 0.53M/S Time: 100.68ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3039744/3719906 81.72% Speed: 0.63M/S Time: 101.42ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3115520/3719906 83.75% Speed: 0.72M/S Time: 100.85ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3197440/3719906 85.95% Speed: 0.73M/S Time: 106.31ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3258880/3719906 87.61% Speed: 0.58M/S Time: 101.01ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3321344/3719906 89.29% Speed: 0.59M/S Time: 100.61ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3394560/3719906 91.25% Speed: 0.65M/S Time: 106.99ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3499520/3719906 94.08% Speed: 0.95M/S Time: 105.87ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3574272/3719906 96.09% Speed: 0.67M/S Time: 106.69ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3680768/3719906 98.95% Speed: 0.96M/S Time: 105.56ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3719906/3719906 100.00% Speed: 0.57M/S Time: 65.32ms
+bbb_30fps_1920x1080_8000k_4s_3.m4v: Size: 3719906 Speed: 0.57M/S Time:5298.63ms
+qsize: 1, get seg
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 62976/3719906 1.69% Speed: 0.57M/S Time: 104.80ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 145920/3719906 3.92% Speed: 0.75M/S Time: 104.81ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 208896/3719906 5.62% Speed: 0.56M/S Time: 106.76ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 294912/3719906 7.93% Speed: 0.78M/S Time: 105.69ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 380928/3719906 10.24% Speed: 0.79M/S Time: 104.27ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 446976/3719906 12.02% Speed: 0.61M/S Time: 103.97ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 507904/3719906 13.65% Speed: 0.57M/S Time: 101.28ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 584192/3719906 15.70% Speed: 0.72M/S Time: 101.08ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 644096/3719906 17.31% Speed: 0.57M/S Time: 101.01ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 712704/3719906 19.16% Speed: 0.58M/S Time: 112.04ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 823296/3719906 22.13% Speed: 0.94M/S Time: 112.55ms
+pasue for 2.4557113647460938e-05s
+play seg3, 4s
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 879104/3719906 23.63% Speed: 0.53M/S Time: 100.28ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 947712/3719906 25.48% Speed: 0.64M/S Time: 101.63ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1011712/3719906 27.20% Speed: 0.55M/S Time: 111.29ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1080320/3719906 29.04% Speed: 0.63M/S Time: 104.21ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1147392/3719906 30.84% Speed: 0.62M/S Time: 103.95ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1210368/3719906 32.54% Speed: 0.56M/S Time: 106.65ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1271808/3719906 34.19% Speed: 0.59M/S Time: 100.15ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1350656/3719906 36.31% Speed: 0.74M/S Time: 102.01ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1410560/3719906 37.92% Speed: 0.55M/S Time: 104.33ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1483264/3719906 39.87% Speed: 0.66M/S Time: 105.85ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1559040/3719906 41.91% Speed: 0.66M/S Time: 109.58ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1626624/3719906 43.73% Speed: 0.61M/S Time: 105.77ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1695232/3719906 45.57% Speed: 0.63M/S Time: 103.76ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1772544/3719906 47.65% Speed: 0.66M/S Time: 111.63ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1858560/3719906 49.96% Speed: 0.77M/S Time: 107.05ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1922560/3719906 51.68% Speed: 0.60M/S Time: 101.76ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 1994240/3719906 53.61% Speed: 0.64M/S Time: 107.03ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2076160/3719906 55.81% Speed: 0.71M/S Time: 109.30ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2160640/3719906 58.08% Speed: 0.77M/S Time: 104.00ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2226688/3719906 59.86% Speed: 0.61M/S Time: 102.91ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2290688/3719906 61.58% Speed: 0.59M/S Time: 103.41ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2359296/3719906 63.42% Speed: 0.58M/S Time: 112.89ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2439680/3719906 65.58% Speed: 0.71M/S Time: 108.62ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2511360/3719906 67.51% Speed: 0.68M/S Time: 100.07ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2578432/3719906 69.31% Speed: 0.63M/S Time: 101.76ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2651136/3719906 71.27% Speed: 0.63M/S Time: 110.18ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2724352/3719906 73.24% Speed: 0.67M/S Time: 104.82ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2795520/3719906 75.15% Speed: 0.68M/S Time: 100.00ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2855936/3719906 76.77% Speed: 0.54M/S Time: 106.12ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2924544/3719906 78.62% Speed: 0.62M/S Time: 106.18ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 2990080/3719906 80.38% Speed: 0.62M/S Time: 101.34ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3067392/3719906 82.46% Speed: 0.72M/S Time: 102.09ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3131904/3719906 84.19% Speed: 0.58M/S Time: 106.05ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3214848/3719906 86.42% Speed: 0.74M/S Time: 106.96ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3280384/3719906 88.18% Speed: 0.56M/S Time: 112.56ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3360768/3719906 90.35% Speed: 0.71M/S Time: 108.56ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3461632/3719906 93.06% Speed: 0.94M/S Time: 102.05ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3523072/3719906 94.71% Speed: 0.57M/S Time: 103.26ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3587584/3719906 96.44% Speed: 0.62M/S Time: 100.00ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3665920/3719906 98.55% Speed: 0.73M/S Time: 102.13ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3719906/3719906 100.00% Speed: 0.98M/S Time: 52.77ms
+bbb_30fps_1920x1080_8000k_4s_4.m4v: Size: 3719906 Speed: 0.98M/S Time:5414.36ms
+qsize: 1, get seg
+pasue for 0.161407470703125s
+play seg4, 4s
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 78848/3719906 2.12% Speed: 0.72M/S Time: 104.03ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 138752/3719906 3.73% Speed: 0.56M/S Time: 101.48ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 207360/3719906 5.57% Speed: 0.64M/S Time: 101.96ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 296448/3719906 7.97% Speed: 0.74M/S Time: 114.48ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 354816/3719906 9.54% Speed: 0.54M/S Time: 103.20ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 420352/3719906 11.30% Speed: 0.62M/S Time: 101.14ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 484864/3719906 13.03% Speed: 0.57M/S Time: 107.82ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 553472/3719906 14.88% Speed: 0.62M/S Time: 105.01ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 632320/3719906 17.00% Speed: 0.73M/S Time: 103.04ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 703488/3719906 18.91% Speed: 0.60M/S Time: 112.56ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 776704/3719906 20.88% Speed: 0.61M/S Time: 113.86ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 857088/3719906 23.04% Speed: 0.76M/S Time: 101.04ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 912384/3719906 24.53% Speed: 0.52M/S Time: 100.90ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 980992/3719906 26.37% Speed: 0.58M/S Time: 113.42ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1043968/3719906 28.06% Speed: 0.59M/S Time: 101.21ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1145856/3719906 30.80% Speed: 0.88M/S Time: 110.80ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1208832/3719906 32.50% Speed: 0.56M/S Time: 106.64ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1282048/3719906 34.46% Speed: 0.61M/S Time: 113.61ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1347584/3719906 36.23% Speed: 0.59M/S Time: 106.07ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1432064/3719906 38.50% Speed: 0.74M/S Time: 108.18ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1496576/3719906 40.23% Speed: 0.61M/S Time: 100.93ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1558016/3719906 41.88% Speed: 0.57M/S Time: 102.04ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1639424/3719906 44.07% Speed: 0.71M/S Time: 109.25ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1705472/3719906 45.85% Speed: 0.62M/S Time: 101.43ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1774080/3719906 47.69% Speed: 0.63M/S Time: 104.16ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1838080/3719906 49.41% Speed: 0.60M/S Time: 101.46ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1906688/3719906 51.26% Speed: 0.64M/S Time: 101.47ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 1991680/3719906 53.54% Speed: 0.76M/S Time: 107.11ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2057216/3719906 55.30% Speed: 0.60M/S Time: 103.39ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2137600/3719906 57.46% Speed: 0.73M/S Time: 104.86ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2217984/3719906 59.62% Speed: 0.76M/S Time: 101.42ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2297856/3719906 61.77% Speed: 0.75M/S Time: 101.72ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2388480/3719906 64.21% Speed: 0.78M/S Time: 110.22ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2451456/3719906 65.90% Speed: 0.57M/S Time: 104.93ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2521600/3719906 67.79% Speed: 0.59M/S Time: 113.10ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2603008/3719906 69.98% Speed: 0.71M/S Time: 109.04ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2702336/3719906 72.65% Speed: 0.92M/S Time: 102.61ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2766848/3719906 74.38% Speed: 0.56M/S Time: 109.01ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2827776/3719906 76.02% Speed: 0.58M/S Time: 100.45ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2893824/3719906 77.79% Speed: 0.60M/S Time: 105.06ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 2976768/3719906 80.02% Speed: 0.78M/S Time: 101.08ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3039744/3719906 81.72% Speed: 0.56M/S Time: 107.42ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3109888/3719906 83.60% Speed: 0.63M/S Time: 105.38ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3173888/3719906 85.32% Speed: 0.57M/S Time: 107.31ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3245568/3719906 87.25% Speed: 0.64M/S Time: 106.90ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3348992/3719906 90.03% Speed: 0.94M/S Time: 105.24ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3426816/3719906 92.12% Speed: 0.72M/S Time: 103.57ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3495424/3719906 93.97% Speed: 0.62M/S Time: 105.23ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3564032/3719906 95.81% Speed: 0.64M/S Time: 102.30ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3643904/3719906 97.96% Speed: 0.70M/S Time: 109.01ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3706880/3719906 99.65% Speed: 0.58M/S Time: 103.52ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3719906/3719906 100.00% Speed: 0.52M/S Time: 24.09ms
+bbb_30fps_1920x1080_8000k_4s_5.m4v: Size: 3719906 Speed: 0.52M/S Time:5406.39ms
+qsize: 1, get seg
+pasue for 1.4086453914642334s
+play seg5, 4s
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 94720/3719906 2.55% Speed: 0.81M/S Time: 110.89ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 214528/3719906 5.77% Speed: 1.06M/S Time: 107.88ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 270336/3719906 7.27% Speed: 0.52M/S Time: 103.01ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 339968/3719906 9.14% Speed: 0.59M/S Time: 113.31ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 448000/3719906 12.04% Speed: 0.71M/S Time: 144.36ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 559104/3719906 15.03% Speed: 1.01M/S Time: 105.26ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 622080/3719906 16.72% Speed: 0.60M/S Time: 100.18ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 713728/3719906 19.19% Speed: 0.86M/S Time: 102.19ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 804352/3719906 21.62% Speed: 0.83M/S Time: 104.48ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 900608/3719906 24.21% Speed: 0.88M/S Time: 103.73ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 962048/3719906 25.86% Speed: 0.53M/S Time: 109.82ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1035264/3719906 27.83% Speed: 0.59M/S Time: 117.65ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1105408/3719906 29.72% Speed: 0.58M/S Time: 114.49ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1175040/3719906 31.59% Speed: 0.58M/S Time: 114.27ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1245184/3719906 33.47% Speed: 0.58M/S Time: 114.45ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1315328/3719906 35.36% Speed: 0.58M/S Time: 114.67ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1376768/3719906 37.01% Speed: 0.58M/S Time: 100.36ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1467392/3719906 39.45% Speed: 0.75M/S Time: 114.99ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1547776/3719906 41.61% Speed: 0.72M/S Time: 106.41ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1654272/3719906 44.47% Speed: 0.90M/S Time: 112.68ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1712640/3719906 46.04% Speed: 0.53M/S Time: 105.88ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1782784/3719906 47.93% Speed: 0.61M/S Time: 109.69ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1846784/3719906 49.65% Speed: 0.58M/S Time: 105.97ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1916928/3719906 51.53% Speed: 0.58M/S Time: 114.37ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 1987072/3719906 53.42% Speed: 0.58M/S Time: 114.68ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2057216/3719906 55.30% Speed: 0.58M/S Time: 114.47ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2127360/3719906 57.19% Speed: 0.58M/S Time: 114.50ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2197504/3719906 59.07% Speed: 0.58M/S Time: 114.44ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2267136/3719906 60.95% Speed: 0.58M/S Time: 114.23ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2337280/3719906 62.83% Speed: 0.58M/S Time: 114.68ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2407424/3719906 64.72% Speed: 0.58M/S Time: 114.47ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2477568/3719906 66.60% Speed: 0.58M/S Time: 114.43ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2547712/3719906 68.49% Speed: 0.58M/S Time: 114.48ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2617856/3719906 70.37% Speed: 0.59M/S Time: 114.27ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2724352/3719906 73.24% Speed: 0.83M/S Time: 122.65ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2804736/3719906 75.40% Speed: 0.52M/S Time: 148.73ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2897920/3719906 77.90% Speed: 0.83M/S Time: 107.30ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 2957824/3719906 79.51% Speed: 0.54M/S Time: 105.05ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3049984/3719906 81.99% Speed: 0.82M/S Time: 107.09ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3111424/3719906 83.64% Speed: 0.53M/S Time: 110.56ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3194368/3719906 85.87% Speed: 0.72M/S Time: 110.21ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3252736/3719906 87.44% Speed: 0.52M/S Time: 107.69ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3322880/3719906 89.33% Speed: 0.60M/S Time: 112.29ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3408896/3719906 91.64% Speed: 0.70M/S Time: 117.06ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3533312/3719906 94.98% Speed: 1.03M/S Time: 115.17ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3597312/3719906 96.70% Speed: 0.44M/S Time: 139.45ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3672064/3719906 98.71% Speed: 0.64M/S Time: 111.95ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3719906/3719906 100.00% Speed: 0.64M/S Time: 71.19ms
+bbb_30fps_1920x1080_8000k_4s_6.m4v: Size: 3719906 Speed: 0.64M/S Time:5383.23ms
+qsize: 1, get seg
+pasue for 1.3852684497833252s
+play seg6, 4s
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 100864/3719906 2.71% Speed: 0.76M/S Time: 126.70ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 200192/3719906 5.38% Speed: 0.52M/S Time: 183.09ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 270336/3719906 7.27% Speed: 0.60M/S Time: 111.95ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 337408/3719906 9.07% Speed: 0.60M/S Time: 106.08ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 398336/3719906 10.71% Speed: 0.58M/S Time: 100.69ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 471552/3719906 12.68% Speed: 0.66M/S Time: 105.06ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 541696/3719906 14.56% Speed: 0.66M/S Time: 101.10ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 641024/3719906 17.23% Speed: 0.85M/S Time: 111.86ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 716800/3719906 19.27% Speed: 0.51M/S Time: 140.39ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 788480/3719906 21.20% Speed: 0.61M/S Time: 112.64ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 850944/3719906 22.88% Speed: 0.58M/S Time: 102.25ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 912384/3719906 24.53% Speed: 0.56M/S Time: 105.33ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 992768/3719906 26.69% Speed: 0.71M/S Time: 108.67ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1064448/3719906 28.61% Speed: 0.63M/S Time: 108.21ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1119744/3719906 30.10% Speed: 0.52M/S Time: 100.85ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1192960/3719906 32.07% Speed: 0.63M/S Time: 110.26ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1253376/3719906 33.69% Speed: 0.58M/S Time: 100.01ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1321472/3719906 35.52% Speed: 0.61M/S Time: 105.90ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1392640/3719906 37.44% Speed: 0.63M/S Time: 107.21ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1452544/3719906 39.05% Speed: 0.52M/S Time: 110.60ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1537536/3719906 41.33% Speed: 0.76M/S Time: 106.37ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1613312/3719906 43.37% Speed: 0.68M/S Time: 106.39ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1681920/3719906 45.21% Speed: 0.60M/S Time: 109.58ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1737216/3719906 46.70% Speed: 0.52M/S Time: 100.52ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1807360/3719906 48.59% Speed: 0.55M/S Time: 120.74ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1892352/3719906 50.87% Speed: 0.75M/S Time: 108.51ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 1963520/3719906 52.78% Speed: 0.63M/S Time: 108.52ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2028032/3719906 54.52% Speed: 0.59M/S Time: 103.42ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2099712/3719906 56.45% Speed: 0.66M/S Time: 103.60ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2181120/3719906 58.63% Speed: 0.74M/S Time: 105.30ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2251264/3719906 60.52% Speed: 0.58M/S Time: 115.06ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2315776/3719906 62.25% Speed: 0.53M/S Time: 115.45ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2419200/3719906 65.03% Speed: 0.72M/S Time: 136.17ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2527232/3719906 67.94% Speed: 0.86M/S Time: 120.07ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2591744/3719906 69.67% Speed: 0.57M/S Time: 107.20ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2683392/3719906 72.14% Speed: 0.86M/S Time: 101.59ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2784256/3719906 74.85% Speed: 0.57M/S Time: 169.73ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2854400/3719906 76.73% Speed: 0.66M/S Time: 101.71ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2919936/3719906 78.49% Speed: 0.55M/S Time: 112.61ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 2991616/3719906 80.42% Speed: 0.60M/S Time: 113.14ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3074560/3719906 82.65% Speed: 0.74M/S Time: 106.46ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3184128/3719906 85.60% Speed: 0.92M/S Time: 113.78ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3254272/3719906 87.48% Speed: 0.52M/S Time: 129.72ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3379712/3719906 90.85% Speed: 1.02M/S Time: 117.67ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3476480/3719906 93.46% Speed: 0.52M/S Time: 177.97ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3560960/3719906 95.73% Speed: 0.74M/S Time: 109.20ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3619328/3719906 97.30% Speed: 0.54M/S Time: 102.48ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3691008/3719906 99.22% Speed: 0.58M/S Time: 117.53ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3719906/3719906 100.00% Speed: 0.58M/S Time: 47.79ms
+bbb_30fps_1920x1080_8000k_4s_7.m4v: Size: 3719906 Speed: 0.58M/S Time:5548.32ms
+qsize: 1, get seg
+pasue for 1.550469160079956s
+play seg7, 4s
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 73216/3719906 1.97% Speed: 0.56M/S Time: 123.66ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 148992/3719906 4.01% Speed: 0.62M/S Time: 116.72ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 221696/3719906 5.96% Speed: 0.67M/S Time: 104.11ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 293376/3719906 7.89% Speed: 0.63M/S Time: 108.45ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 350208/3719906 9.41% Speed: 0.50M/S Time: 108.42ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 429056/3719906 11.53% Speed: 0.67M/S Time: 112.32ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 522752/3719906 14.05% Speed: 0.73M/S Time: 122.36ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 604672/3719906 16.26% Speed: 0.75M/S Time: 103.53ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 711168/3719906 19.12% Speed: 0.91M/S Time: 112.16ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 769536/3719906 20.69% Speed: 0.51M/S Time: 108.10ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 833536/3719906 22.41% Speed: 0.58M/S Time: 104.84ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 958976/3719906 25.78% Speed: 0.92M/S Time: 130.44ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1032192/3719906 27.75% Speed: 0.54M/S Time: 129.38ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1114112/3719906 29.95% Speed: 0.52M/S Time: 150.95ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1178112/3719906 31.67% Speed: 0.57M/S Time: 107.04ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1256960/3719906 33.79% Speed: 0.69M/S Time: 109.19ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1313792/3719906 35.32% Speed: 0.51M/S Time: 106.30ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1382400/3719906 37.16% Speed: 0.65M/S Time: 100.75ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1476096/3719906 39.68% Speed: 0.70M/S Time: 127.83ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1558016/3719906 41.88% Speed: 0.65M/S Time: 119.85ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1618944/3719906 43.52% Speed: 0.58M/S Time: 100.12ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1686528/3719906 45.34% Speed: 0.64M/S Time: 100.28ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1774080/3719906 47.69% Speed: 0.73M/S Time: 114.72ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1864192/3719906 50.11% Speed: 0.79M/S Time: 108.89ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 1940480/3719906 52.16% Speed: 0.52M/S Time: 140.60ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2010624/3719906 54.05% Speed: 0.65M/S Time: 102.66ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2119680/3719906 56.98% Speed: 1.01M/S Time: 103.04ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2178560/3719906 58.56% Speed: 0.56M/S Time: 100.05ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2242560/3719906 60.29% Speed: 0.56M/S Time: 108.23ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2314240/3719906 62.21% Speed: 0.65M/S Time: 105.28ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2382848/3719906 64.06% Speed: 0.64M/S Time: 102.75ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2443776/3719906 65.69% Speed: 0.54M/S Time: 107.94ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2525696/3719906 67.90% Speed: 0.67M/S Time: 116.87ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2588672/3719906 69.59% Speed: 0.56M/S Time: 106.46ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2680320/3719906 72.05% Speed: 0.78M/S Time: 111.47ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2756608/3719906 74.10% Speed: 0.46M/S Time: 157.57ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2885120/3719906 77.56% Speed: 1.09M/S Time: 112.77ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 2972672/3719906 79.91% Speed: 0.52M/S Time: 161.91ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3041280/3719906 81.76% Speed: 0.59M/S Time: 111.73ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3105280/3719906 83.48% Speed: 0.61M/S Time: 100.49ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3175424/3719906 85.36% Speed: 0.62M/S Time: 108.42ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3271680/3719906 87.95% Speed: 0.78M/S Time: 117.54ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3344896/3719906 89.92% Speed: 0.52M/S Time: 134.82ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3420672/3719906 91.96% Speed: 0.62M/S Time: 116.78ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3528704/3719906 94.86% Speed: 0.81M/S Time: 126.69ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3603456/3719906 96.87% Speed: 0.52M/S Time: 137.79ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3679232/3719906 98.91% Speed: 0.65M/S Time: 111.93ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3719906/3719906 100.00% Speed: 0.66M/S Time: 59.08ms
+bbb_30fps_1920x1080_8000k_4s_8.m4v: Size: 3719906 Speed: 0.66M/S Time:5494.69ms
+qsize: 1, get seg
+pasue for 1.4963338375091553s
+play seg8, 4s
+content-length: 3719906.0
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 115200/3719906 3.10% Speed: 0.99M/S Time: 110.70ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 200192/3719906 5.38% Speed: 0.52M/S Time: 156.49ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 279040/3719906 7.50% Speed: 0.63M/S Time: 118.58ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 343040/3719906 9.22% Speed: 0.58M/S Time: 104.76ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 416256/3719906 11.19% Speed: 0.57M/S Time: 122.39ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 510976/3719906 13.74% Speed: 0.87M/S Time: 103.41ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 600064/3719906 16.13% Speed: 0.53M/S Time: 161.79ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 678912/3719906 18.25% Speed: 0.68M/S Time: 110.35ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 742912/3719906 19.97% Speed: 0.59M/S Time: 103.48ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 843776/3719906 22.68% Speed: 0.80M/S Time: 119.93ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 899584/3719906 24.18% Speed: 0.52M/S Time: 102.66ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 963584/3719906 25.90% Speed: 0.60M/S Time: 102.23ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1030656/3719906 27.71% Speed: 0.62M/S Time: 103.38ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1114112/3719906 29.95% Speed: 0.78M/S Time: 102.29ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1227776/3719906 33.01% Speed: 0.85M/S Time: 128.21ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1306624/3719906 35.13% Speed: 0.52M/S Time: 145.39ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1451008/3719906 39.01% Speed: 1.14M/S Time: 121.07ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1563648/3719906 42.03% Speed: 0.52M/S Time: 207.42ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1630720/3719906 43.84% Speed: 0.62M/S Time: 103.44ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1687552/3719906 45.37% Speed: 0.53M/S Time: 102.71ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1797120/3719906 48.31% Speed: 1.00M/S Time: 104.16ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1860096/3719906 50.00% Speed: 0.52M/S Time: 116.22ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 1949184/3719906 52.40% Speed: 0.52M/S Time: 164.17ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2013184/3719906 54.12% Speed: 0.51M/S Time: 118.65ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2092032/3719906 56.24% Speed: 0.68M/S Time: 110.41ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2153472/3719906 57.89% Speed: 0.58M/S Time: 100.16ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2226688/3719906 59.86% Speed: 0.53M/S Time: 130.91ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2296320/3719906 61.73% Speed: 0.57M/S Time: 116.82ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2423808/3719906 65.16% Speed: 0.99M/S Time: 122.61ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 2527232/3719906 67.94% Speed: 0.45M/S Time: 218.02ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3169792/3719906 85.21% Speed: 4.90M/S Time: 125.03ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3233792/3719906 86.93% Speed: 0.52M/S Time: 118.37ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3298304/3719906 88.67% Speed: 0.52M/S Time: 118.57ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3362304/3719906 90.39% Speed: 0.52M/S Time: 118.16ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3439616/3719906 92.47% Speed: 0.61M/S Time: 120.79ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3504128/3719906 94.20% Speed: 0.60M/S Time: 102.59ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3565056/3719906 95.84% Speed: 0.52M/S Time: 111.40ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3631104/3719906 97.61% Speed: 0.61M/S Time: 102.61ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3695104/3719906 99.33% Speed: 0.53M/S Time: 115.57ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3719906/3719906 100.00% Speed: 0.61M/S Time: 38.53ms
+bbb_30fps_1920x1080_8000k_4s_9.m4v: Size: 3719906 Speed: 0.61M/S Time:4805.44ms
+pasue for 0.8079168796539307s
+play seg9, 4s
+start: 0.01s all: 46.81s pause:6.81s
+46.819157123565674 in all
