@@ -1,14 +1,15 @@
+import os
 import threading
 import queue
 import requests
 import tools
 import time
 server_addr = '192.168.5.136'
-def GoBulk(s: requests.Session):
-    tools.downloadFile('test10M', 'http://192.168.5.136/trunk/test10M', s)
+def GoBulk(s: requests.Session, logger: tools.Logger):
+    tools.downloadFile('test10M', 'http://192.168.5.136/trunk/test10M', s, logger=logger)
 
 class MimicPlayer:
-    def __init__(self, s: requests.Session, r: str = '1920x1080_8000k'):
+    def __init__(self, s: requests.Session, r: str = '1920x1080_8000k', logger: tools.Logger = None):
         self.session: requests.Session = s
         self.resolution = r
         self.replay_buffer: queue.Queue = queue.Queue(0)
@@ -24,6 +25,10 @@ class MimicPlayer:
         self.total_seg_count = 10
         self.played_seg_count = 0
         self.got_seg_count = 0
+
+        if logger is None:
+            self.logger = tools.Logger('','')
+        self.logger = logger
     
     def Player(self):
         total_time_start = time.time()
@@ -32,13 +37,13 @@ class MimicPlayer:
                 start = time.time()
                 seg = self.replay_buffer.get(timeout=60)
             except:
-                tools.printLog("queue timeout, something wrong")
+                self.logger.log("queue timeout, something WRONG")
                 break
             else:
                 self.timer_pause += time.time() - start
-                tools.printLog("pasue for {:.4f}s".format(time.time() - start))
+                self.logger.log("pasue for {:.4f}s".format(time.time() - start))
                 if seg is not None and seg == 4:
-                    tools.printLog("playing seg{}, 4s".format(self.played_seg_count))
+                    self.logger.log("Playing... seg(4s):{}".format(self.played_seg_count))
                     time.sleep(seg)
                     self.played_seg_count += 1
 
@@ -71,8 +76,8 @@ class MimicPlayer:
         s = self.session
         # time the first seg
         time_start = time.time()
-        tools.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s)
-        tools.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s)
+        tools.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s, logger=self.logger)
+        tools.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s, logger=self.logger)
         self.got_seg_count += 1
         self.replay_buffer.put(4)
         self.timer_start = time.time() - time_start 
@@ -82,16 +87,16 @@ class MimicPlayer:
         while self.got_seg_count < self.total_seg_count:
             qsize = self.replay_buffer.qsize()
             if qsize <= 0.5 * self.buffer_length:
-                tools.printLog("qsize: {}, get seg".format(qsize))
-                tools.downloadFile('bbb_30fps_{}_4s_{}.m4v'.format(self.resolution, self.got_seg_count), 'http://192.168.5.136/stream/bbb_30fps_{}_4s.m4v'.format(self.resolution), s)
+                self.logger.log("qsize:{} to get a seg".format(qsize))
+                tools.downloadFile('bbb_30fps_{}_4s_{}.m4v'.format(self.resolution, self.got_seg_count), 'http://192.168.5.136/stream/bbb_30fps_{}_4s.m4v'.format(self.resolution), s, logger=self.logger)
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
         
         self.PlayerThreading.join()
         # self.TimerThreading.join()
-        tools.printLog("start: {:.4f}s all: {:.4f}s pause:{:.4f}s".format(self.timer_start, self.timer_all, self.timer_pause))
+        self.logger.log("1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.timer_start, self.timer_all, self.timer_pause))
 
-def GoStream(s: requests.Session, r: str = '1920x1080_8000k'):
+def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000k'):
     '''
     bbb_30fps.mpd
     bbb_30fps_0.m4v
@@ -109,20 +114,52 @@ def GoStream(s: requests.Session, r: str = '1920x1080_8000k'):
     # download.downloadFile('bbb_30fps.mpd', 'http://192.168.5.136/stream/bbb_30fps.mpd', s)
     # download.downloadFile('bbb_30fps_0.m4v', 'http://192.168.5.136/stream/bbb_30fps_0.m4v', s)
     # replay_buffer.put(4) # each seg lasts for 4 seconds
-    player = MimicPlayer(s, r)
+    player = MimicPlayer(s, r, logger=logger)
     player.start()
 
-def GoPing(s: requests.Session):
+def GoPing(s: requests.Session, logger: tools.Logger):
     # 这两次得到的时延有较大的差距，因为第一次需要三次握手
-    tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
-    tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
+    logger.log("first ping")
+    status_code, _, t, _ = tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
+    if status_code < 300:
+        logger.log("Code {}\t ping(ms):{}".format(status_code, t))
+    else:
+        logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t))
+    logger.log("other pings")
+    all_t = 0
+    count = 0
+    for _ in range(10):
+        status_code, _, t, _ = tools.downloadFile('test10B', 'http://192.168.5.136/trunk/test10B', s)
+        if status_code < 300:
+            logger.log("Code {}\t ping(ms):{}".format(status_code, t))
+            all_t += t
+            count += 1
+        else:
+            logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t))
+    logger.log("({}/10) pings\t avg_ping_time(ms):{:.3f}".format(count, all_t/count))
+
+def startExperiment(type: str, log_path: str='./log/', id: str=''):
+    log_file_name = 'log_{}_{}.txt'.format(id, type)
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+    logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
+    s = requests.Session()
+    if type == 'bulk':
+        GoBulk(s, logger)
+    elif type == 'ping':
+        GoPing(s, logger)
+    elif type == 'stream':
+        GoStream(s, logger)
+
 
 if __name__ == '__main__':
     
     s = requests.Session()
-    start = time.time()
-    GoStream(s, r = '1024x576_2500k')
-    # GoBulk(s)
-    # GoPing(s)
+    log_path = './log/'
+    my_id = 'lib'
+    exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
+    
+    startExperiment('stream', log_path, exp_id)
+    startExperiment('ping', log_path, exp_id)
+    startExperiment('bulk', log_path, exp_id)
 
-    tools.printLog("{} in all".format(time.time() - start))
