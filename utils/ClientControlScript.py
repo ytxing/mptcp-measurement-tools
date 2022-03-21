@@ -1,13 +1,13 @@
 import socket
 import os
 import subprocess
-import threading
 import time
 import datetime
 import smtplib
 from email.mime.text import MIMEText
 from typing import List
-from . import mytools
+from . import HttpClient
+from . import tools
 
 # 设置ssh端口
 SSHPort = "22"
@@ -112,13 +112,15 @@ class ConnectToCollectServer:
 		time = datetime.datetime.utcnow().strftime('%Y%m%d%h%M%S')
 		directoryName = self.location + '_' + self.congestionControl + '_' + self.scheduler + '_' + time
 		self.directoryName = directoryName
-		self.collectServerDirectoryPath = "/home/" + self.collectServerUserName + '/' + self.directoryName
+		self.collectServerDirectoryPath = "/home/" + self.collectServerUserName + '/' + self.location + '_' + self.congestionControl + '_' + self.scheduler
 		# cmd = "ssh -p " + self.collectServerSSHPort + ' ' + self.collectServerName + "python3 /home/a/serverScript/createFileOrDirectory.py -d " + directoryName
 		# if subprocess.call(cmd, shell = True):
 		# 	raise Exception("{} failed".format(cmd))
 		homePath = os.path.expandvars('$HOME')
-		directoryPath = homePath + '/' + self.directoryName
+		self.checkDirectoryExist(homePath + "/EXPLog")
+		directoryPath = homePath + '/EXPLog'
 		self.clientDirectoryPath = directoryPath
+		directoryPath = directoryPath + self.directoryName
 		self.checkDirectoryExist(directoryPath)
 
 	def createFile(self, fileName):
@@ -127,11 +129,9 @@ class ConnectToCollectServer:
 			os.mknod(file)
 
 	def postToCollectServer(self):
-		for fileName in self.toPost:
-			absPath = self.clientDirectoryPath + '/' + fileName
-			cmd = "scp -p " + self.collectServerSSHPort + " " + absPath + " " + self.collectServerName + ":" + self.collectServerDirectoryPath
-			if subprocess.call(cmd, shell = True):
-				raise Exception("{} failed".format(cmd))
+		cmd = "scp -r " + self.collectServerSSHPort + " " + self.clientDirectoryPath+ " " + self.collectServerName + ":" + self.collectServerDirectoryPath
+		if subprocess.call(cmd, shell = True):
+			raise Exception("{} failed".format(cmd))
 
 	def startEXP(self):
 		self.clientToCollectServerSock.connect((self.collectServerIP, self.collectServerPort))
@@ -141,6 +141,8 @@ class ConnectToCollectServer:
 				self.clientToCollectServerSock.close()
 				break
 			elif expSetting == "DIRECTORY":
+				msg = self.location + '_' + self.congestionControl + '_' + self.scheduler
+				self.clientToCollectServerSock.send(msg.encode(self.codeMode))
 				self.postToCollectServer()
 				continue
 			expList = expSetting.split(' ')
@@ -156,3 +158,9 @@ class ConnectToCollectServer:
 			while self.scheduler != self.getScheduler():
 				self.setScheduler()
 			self.createDirectory()
+			HttpClient.startExperiment("ping", self.clientDirectoryPath + '/')
+			HttpClient.startExperiment("bulk", self.clientDirectoryPath + '/')
+			HttpClient.startExperiment("stream", self.clientDirectoryPath + '/')
+
+
+

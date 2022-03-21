@@ -1,7 +1,8 @@
 import socket
 import threading
 import sys
-from . import mytools
+from . import CollectServerScript
+import os
 
 # "IP", 0 : available; 1: unavailable
 dataServerIPs = {}
@@ -50,8 +51,10 @@ class HandleConnectionFromClient(threading.Thread):
 					msg = "DIRECTORY"
 					self.connection.send(msg.encode(self.codeMode))
 					directory = self.connection.recv(1024).decode(self.codeMode)
-
-					mytools.MSoMPrint(self.id, ": Closing connection, something wrong with client")
+					homePath = os.path.expandvars('$HOME')
+					directory = homePath + '/' + directory
+					CollectServerScript.checkDirectoryExist(directory)
+					print(self.id, ": Closing connection, something wrong with client")
 					self.connection.close()
 					lock.acquire()
 					dataServerIPs[self.serverIP] = 0
@@ -64,8 +67,10 @@ class HandleConnectionFromClient(threading.Thread):
 			msg = "DIRECTORY"
 			self.connection.send(msg.encode(self.codeMode))
 			directory = self.connection.recv(1024).decode(self.codeMode)
-
-			mytools.MSoMPrint(self.id, ": Closing connection")
+			homePath = os.path.expandvars('$HOME')
+			directory = homePath + '/' + directory
+			CollectServerScript.checkDirectoryExist(directory)
+			print(self.id, ": Closing connection")
 			self.connection.close()
 			lock.acquire()
 			dataServerIPs[self.serverIP] = 0
@@ -96,7 +101,7 @@ class TCPServer:
 
 
 if __name__ == "__main__":
-	mytools.MSoMPrint("Please input the data server IPs: ")
+	print("Please input the data server IPs: ")
 	for i in range(1, len(sys.argv)):
 		dataServerIPs.update({sys.argv[i]: 0})
 	serverNums = len(dataServerIPs)
