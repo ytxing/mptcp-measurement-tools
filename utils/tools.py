@@ -1,5 +1,4 @@
 import datetime
-from typing import List
 import requests
 import time
 import sys
@@ -33,7 +32,7 @@ def getTimeS():
 
 def downloadFile(name, url, s: requests.Session, logger: Logger=None):
     '''
-    return status_code, total_len, time, speed
+    downloadFile() -> status_code, total_len, time, speed
     '''
     if logger is None:
         logger = Logger()
@@ -56,15 +55,15 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
             if time_now - time_last > min_display_interval or curr_len == total_len:
                 p = curr_len / total_len * 100
                 speed = (curr_len - curr_len_last) /(time_now - time_last)
-                speed *= 1000
+                speed *= 1000 * 8
                 speed /= 1024*1024
                 curr_len_last = curr_len
-                logger.log('Loading name:{} size(B):{} percentage(%/{}):{:.3f} speed(mBps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
+                logger.log('Loading name:{} size(B):{} percentage(%/{}):{:.3f} speed(mbps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
                 time_last = getTimeMs()
     speed = curr_len / (time_now - time_start)
-    speed *= 1000
+    speed *= 1000 * 8
     speed /= 1024*1024
-    logger.log('Complete name:{} size(B):{} percentage(/{}):{:.3f} speed(mBps):{:.3f} total_time(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_start))
+    logger.log('Complete name:{} size(B):{} percentage(/{}):{:.3f} speed(mbps):{:.3f} total_time(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_start))
     return r.status_code, total_len, (time_now - time_start), speed
     
 if __name__ == '__main__':

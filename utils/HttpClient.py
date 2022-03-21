@@ -1,3 +1,4 @@
+import argparse
 import os
 import threading
 import queue
@@ -6,7 +7,10 @@ import tools
 import time
 server_url = 'http://192.168.5.136'
 def GoBulk(s: requests.Session, logger: tools.Logger):
-    tools.downloadFile('test10M', '{}/trunk/test10M'.format(server_url), s, logger=logger)
+    '''
+    downloadFile() -> status_code, total_len, time, speed
+    '''
+    return tools.downloadFile('test10M', '{}/trunk/test10M'.format(server_url), s, logger=logger)
 
 class MimicPlayer:
     def __init__(self, s: requests.Session, r: str = '1920x1080_8000k', logger: tools.Logger = None):
@@ -55,7 +59,9 @@ class MimicPlayer:
 
     def start(self):
         '''
+        -> 1st_seg_time, total_time, pause_time
         ```
+        segment list:
         bbb_30fps.mpd
         bbb_30fps_0.m4v
         bbb_30fps_320x180_400k_4s.m4v
@@ -95,9 +101,13 @@ class MimicPlayer:
         self.PlayerThreading.join()
         # self.TimerThreading.join()
         self.logger.log("1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.timer_start, self.timer_all, self.timer_pause))
+        return self.timer_start, self.timer_all, self.timer_pause
 
 def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000k'):
     '''
+    -> 1st_seg_time, total_time, pause_time
+    ```
+    segment list:
     bbb_30fps.mpd
     bbb_30fps_0.m4v
     bbb_30fps_320x180_400k_4s.m4v
@@ -108,18 +118,19 @@ def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000
     bbb_30fps_1920x1080_8000k_4s.m4v
     bbb_30fps_3840x2160_12000k_4s.m4v
     bbb_30fps-bbb_30fps.fbbb_30fps_3840x2160_12000k.mp4
-    '''
+    ```
+        '''
     player = MimicPlayer(s, r, logger=logger)
-    player.start()
+    return player.start()
 
 def GoPing(s: requests.Session, logger: tools.Logger):
     # 这两次得到的时延有较大的差距，因为第一次需要三次握手
     logger.log("first ping")
-    status_code, _, t, _ = tools.downloadFile('test10B', '{}/trunk/test10B'.format(server_url), s, logger=logger)
+    status_code, _, t1, _ = tools.downloadFile('test10B', '{}/trunk/test10B'.format(server_url), s, logger=logger)
     if status_code < 300:
-        logger.log("Code {}\t ping(ms):{}".format(status_code, t))
+        logger.log("Code {}\t ping(ms):{}".format(status_code, t1))
     else:
-        logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t))
+        logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t1))
     logger.log("other pings")
     all_t = 0
     count = 0
@@ -132,8 +143,9 @@ def GoPing(s: requests.Session, logger: tools.Logger):
         else:
             logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t))
     logger.log("({}/10) pings\t avg_ping_time(ms):{:.3f}".format(count, all_t/count))
+    return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', id: str=''):
+def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k'):
     log_file_name = 'log_{}_{}.txt'.format(id, type)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
@@ -144,22 +156,45 @@ def startExperiment(type: str, log_path: str='./log/', id: str=''):
     elif type == 'ping':
         GoPing(s, logger)
     elif type == 'stream':
-        GoStream(s, logger)
+        GoStream(s, logger, r)
 
 
 if __name__ == '__main__':
     
     s = requests.Session()
+    # 接收命令行参数
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--type', help='type of experiment', choices=['bulk', 'ping', 'stream'])
+    parser.add_argument('-l', '--log_path', help='log path', default='./log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
+    parser.add_argument('-i', '--id', help='id of experiment', default='lib')
+    parser.add_argument('-u', '--url', help='url of server', default='http://192.168.5.136:80')
+    parser.add_argument('-r', '--resolution', help='resolution of stream', default='1920x1080_8000k')
+    parser.add_argument('-a', '--all', help='all experiment', action='store_true')
+    args = parser.parse_args()
     # from the outside
     # server_url = 'http://211.86.152.184:1880'
+    # from the inside
+    # server_url = 'http://192.168.5.136'
+    server_url = args.url
+    if args.all:
+        for type in ['bulk', 'ping', 'stream']:
+            exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+            startExperiment(type, args.log_path, exp_id, args.resolution)
+    elif args.type:
+        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        startExperiment(args.type, args.log_path, exp_id, args.resolution)
+    else:
+        print('please specify type of experiment')
+        exit(1)
 
-    log_path = './log/'
-    my_id = 'lib'
+    # log_path = './log/'
+    # my_id = 'lib'
+    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
+    # startExperiment('stream', log_path, exp_id)
+    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
+    # startExperiment('ping', log_path, exp_id)
+    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
+    # startExperiment('bulk', log_path, exp_id)
 
-    exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    startExperiment('stream', log_path, exp_id)
-    exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    startExperiment('ping', log_path, exp_id)
-    exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    startExperiment('bulk', log_path, exp_id)
+
 
