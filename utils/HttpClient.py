@@ -182,7 +182,10 @@ if __name__ == '__main__':
             startExperiment(type, args.log_path, exp_id, args.resolution)
     elif args.type:
         exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
-        startExperiment(args.type, args.log_path, exp_id, args.resolution)
+        if args.resolution in ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k', '1920x1080_8000k', '3840x2160_12000k']:
+            startExperiment(args.type, args.log_path, exp_id, args.resolution)
+        else:
+            print('Wrong resolution: {}'.format(args.resolution))
     else:
         print('please specify type of experiment')
         exit(1)
