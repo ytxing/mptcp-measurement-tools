@@ -3,7 +3,7 @@ import os
 import threading
 import queue
 import requests
-from . import tools
+import tools
 import time
 server_url = 'http://192.168.5.136'
 def GoBulk(s: requests.Session, logger: tools.Logger):
