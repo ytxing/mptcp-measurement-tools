@@ -3,9 +3,9 @@ import os
 import threading
 import queue
 import requests
-from . import tools
+import tools
 import time
-server_url = 'http://192.168.5.136'
+server_url = 'http://192.168.5.81'
 def GoBulk(s: requests.Session, logger: tools.Logger):
     '''
     downloadFile() -> status_code, total_len, time, speed
@@ -147,6 +147,7 @@ def GoPing(s: requests.Session, logger: tools.Logger):
 
 def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k'):
     log_file_name = 'log_{}_{}.txt'.format(id, type)
+    tcpdump_out_file_name = 'tcpdump_{}_{}.txt'.format(id, type)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
@@ -167,14 +168,14 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--type', help='type of experiment', choices=['bulk', 'ping', 'stream'])
     parser.add_argument('-l', '--log_path', help='log path', default='./log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
     parser.add_argument('-i', '--id', help='id of experiment', default='lib')
-    parser.add_argument('-u', '--url', help='url of server', default='http://192.168.5.136:80')
+    parser.add_argument('-u', '--url', help='url of server', default='http://192.168.5.81:80')
     parser.add_argument('-r', '--resolution', help='resolution of stream', default='1920x1080_8000k')
     parser.add_argument('-a', '--all', help='all experiment', action='store_true')
     args = parser.parse_args()
     # from the outside
     # server_url = 'http://211.86.152.184:1880'
     # from the inside
-    # server_url = 'http://192.168.5.136'
+    # server_url = 'http://192.168.5.81'
     server_url = args.url
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
