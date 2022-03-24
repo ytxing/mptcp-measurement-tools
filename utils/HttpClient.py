@@ -147,10 +147,12 @@ def GoPing(s: requests.Session, logger: tools.Logger):
 
 def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k'):
     log_file_name = 'log_{}_{}.txt'.format(id, type)
-    tcpdump_out_file_name = 'tcpdump_{}_{}.txt'.format(id, type)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
+    req = requests.get('{}/server_status.txt'.format(server_url))
+    for line in req.content.decode().split('\n'):
+        logger.log(line)
     s = requests.Session()
     if type == 'bulk':
         GoBulk(s, logger)
