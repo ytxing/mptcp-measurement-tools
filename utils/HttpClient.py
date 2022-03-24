@@ -168,7 +168,8 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--type', help='type of experiment', choices=['bulk', 'ping', 'stream'])
     parser.add_argument('-l', '--log_path', help='log path', default='./log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
     parser.add_argument('-i', '--id', help='id of experiment', default='lib')
-    parser.add_argument('-u', '--url', help='url of server', default='http://192.168.5.81:80')
+    parser.add_argument('--inside', help='run from the inside', action='store_true')
+    parser.add_argument('-u', '--url', help='url of server', default='http://211.86.152.184:1880')
     parser.add_argument('-r', '--resolution', help='resolution of stream', default='1920x1080_8000k')
     parser.add_argument('-a', '--all', help='all experiment', action='store_true')
     args = parser.parse_args()
@@ -176,7 +177,10 @@ if __name__ == '__main__':
     # server_url = 'http://211.86.152.184:1880'
     # from the inside
     # server_url = 'http://192.168.5.81'
-    server_url = args.url
+    if args.inside:
+        server_url = 'http://192.168.5.81'
+    else:
+        server_url = args.url
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
             exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
