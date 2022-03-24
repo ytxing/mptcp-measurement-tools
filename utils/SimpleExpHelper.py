@@ -2,18 +2,8 @@ import subprocess
 import time
 import threading
 
-# def algorithmChecking():
-#     '''
-#     algorithm checking
-#     '''
-#     # 读取服务器状态文件
-#     with open('/var/www/html/server_status.txt', 'r') as f:
-#         status = f.read()
-#     subprocess.call("echo infonet123 | sudo -S echo '[{}] checked algs' >> /var/www/html/server_status.txt".format(now), shell=True)
-#     subprocess.call("echo infonet123 | sudo -S sysctl net.mptcp.mptcp_scheduler >> /var/www/html/server_status.txt", shell=True)
-#     subprocess.call("echo infonet123 | sudo -S sysctl net.ipv4.tcp_congestion_control >> /var/www/html/server_status.txt", shell=True)
 
-
+# run on server
 if __name__ == '__main__':
     scheduler = ['default', 'roundrobin', 'redundant']
     cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
