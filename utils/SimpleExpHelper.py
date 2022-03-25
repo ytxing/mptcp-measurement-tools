@@ -28,6 +28,8 @@ if __name__ == '__main__':
                     subprocess.call("echo infonet123 | sudo -S sysctl net.mptcp.mptcp_scheduler >> /var/www/html/server_status.txt", shell=True)
                     subprocess.call("echo infonet123 | sudo -S sysctl net.ipv4.tcp_congestion_control >> /var/www/html/server_status.txt", shell=True)
                     subprocess.call("echo infonet123 | sudo -S sysctl net.core.default_qdisc >> /var/www/html/server_status.txt", shell=True)
+                    with open("/var/www/html/server_status.txt", "r") as f:
+                        print(f.read())
                 sleep = 20 * 60
                 print('sleep {}s'.format(sleep))
                 time.sleep(sleep)
