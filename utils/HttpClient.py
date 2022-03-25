@@ -6,10 +6,14 @@ import requests
 import tools
 import time
 server_url = 'http://192.168.5.81'
-def GoBulk(s: requests.Session, logger: tools.Logger):
+def GoBulk(s: requests.Session, logger: tools.Logger, size: str = '10M'):
     '''
     downloadFile() -> status_code, total_len, time, speed
     '''
+    if size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
+        name = 'test{}'.format(size)
+        return tools.downloadFile(name, '{}/trunk/{}'.format(server_url, name), s, logger=logger)
+    
     return tools.downloadFile('test10M', '{}/trunk/test10M'.format(server_url), s, logger=logger)
 
 class MimicPlayer:
@@ -145,7 +149,7 @@ def GoPing(s: requests.Session, logger: tools.Logger):
     logger.log("({}/10) pings\t avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k'):
+def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', size: str='10M'):
     log_file_name = 'log_{}_{}.txt'.format(id, type)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
@@ -155,7 +159,7 @@ def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x
         logger.log(line)
     s = requests.Session()
     if type == 'bulk':
-        GoBulk(s, logger)
+        GoBulk(s, logger, size)
     elif type == 'ping':
         GoPing(s, logger)
     elif type == 'stream':
@@ -168,9 +172,11 @@ if __name__ == '__main__':
     # 接收命令行参数
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--type', help='type of experiment', choices=['bulk', 'ping', 'stream'])
+    # test1000K  test1000M  test100K  test100M  test10B  test10K  test10M  test1K  test1M
+    parser.add_argument('--size', help='trunk size', choices=['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M'])
     parser.add_argument('-l', '--log_path', help='log path', default='./log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
     parser.add_argument('-i', '--id', help='id of experiment', default='lib')
-    parser.add_argument('--inside', help='run from the inside', action='store_true')
+    parser.add_argument('--inside', help='run from the inside', action='store_true', default=False)
     parser.add_argument('-u', '--url', help='url of server', default='http://211.86.152.184:1880')
     parser.add_argument('-r', '--resolution', help='resolution of stream', default='1920x1080_8000k')
     parser.add_argument('-a', '--all', help='all experiment', action='store_true')
@@ -187,12 +193,18 @@ if __name__ == '__main__':
         for type in ['bulk', 'ping', 'stream']:
             exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
             startExperiment(type, args.log_path, exp_id, args.resolution)
-    elif args.type:
+    elif args.type == 'stream':
         exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
         if args.resolution in ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k', '1920x1080_8000k', '3840x2160_12000k']:
-            startExperiment(args.type, args.log_path, exp_id, args.resolution)
+            startExperiment(args.type, args.log_path, exp_id, r=args.resolution)
         else:
             print('Wrong resolution: {}'.format(args.resolution))
+    elif args.type == 'bulk':
+        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        if args.size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
+            startExperiment(args.type, args.log_path, exp_id, size=args.size)
+        else:
+            print('Wrong size: {}'.format(args.size))
     else:
         print('please specify type of experiment')
         exit(1)
