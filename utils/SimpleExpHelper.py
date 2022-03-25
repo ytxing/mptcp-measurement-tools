@@ -1,10 +1,15 @@
 import subprocess
 import time
-import threading
+import argparse
 
 
 # run on server
 if __name__ == '__main__':
+    # args from cmd line
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--time', help='time to change algorithms (min)', default=20)
+    args = parser.parse_args()
+    change_time = int(args.time) * 60
     scheduler = ['default', 'roundrobin', 'redundant']
     cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
     
@@ -29,7 +34,6 @@ if __name__ == '__main__':
                     subprocess.call("echo infonet123 | sudo -S sysctl net.ipv4.tcp_congestion_control >> /var/www/html/server_status.txt", shell=True)
                     subprocess.call("echo infonet123 | sudo -S sysctl net.core.default_qdisc >> /var/www/html/server_status.txt", shell=True)
                     with open("/var/www/html/server_status.txt", "r") as f:
-                        print(f.read())
-                sleep = 20 * 60
-                print('sleep {}s'.format(sleep))
-                time.sleep(sleep)
+                        print("in /var/www/html/server_status.txt \n{}".format(f.read()))
+                print('sleep {}s'.format(change_time))
+                time.sleep(change_time)
