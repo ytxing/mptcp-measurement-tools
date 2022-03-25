@@ -33,18 +33,24 @@ if __name__ == '__main__':
                     cmd.append("echo infonet123 | sudo -S sysctl net.core.default_qdisc=fq")
                 else:
                     cmd.append("echo infonet123 | sudo -S sysctl net.core.default_qdisc=pfifo_fast")
+                    
+                now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                print('\033[1;31;40m[{}]\033[0m'.format(now))
                 for cmd_i in cmd:
                     p = subprocess.Popen(cmd_i, shell=True, stdout=subprocess.PIPE)
                     print( p.stdout.read().decode().strip())
                     p.wait()
-                    now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-                    print("[{}] {}".format(now, cmd_i))
+                    # print in red
+                    print("{}".format(cmd_i))
 
                 subprocess.call("echo infonet123 | sudo -S echo '[{}] changed algs' > /var/www/html/server_status.txt".format(now), shell=True)
                 subprocess.call("echo infonet123 | sudo -S sysctl net.mptcp.mptcp_scheduler >> /var/www/html/server_status.txt", shell=True)
                 subprocess.call("echo infonet123 | sudo -S sysctl net.ipv4.tcp_congestion_control >> /var/www/html/server_status.txt", shell=True)
                 subprocess.call("echo infonet123 | sudo -S sysctl net.core.default_qdisc >> /var/www/html/server_status.txt", shell=True)
                 with open("/var/www/html/server_status.txt", "r") as f:
-                    print("in /var/www/html/server_status.txt \n{}".format(f.read()))
+                    # print in green
+                    print('\033[1;32;40min /var/www/html/server_status.txt\033[0m')
+                    for line in f.readlines():
+                        print('\033[1;32;40m{}\033[0m'.format(line.strip()))
                 print('sleep {}s'.format(change_time))
                 time.sleep(change_time)
