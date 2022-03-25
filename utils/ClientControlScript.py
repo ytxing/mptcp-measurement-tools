@@ -84,16 +84,18 @@ class ConnectToCollectServer:
 	def getCongestionControl(self) -> str:
 		cmd = "ssh - p " + self.dataServerSSHPort + ' ' + self.dataServerName + "sudo sysctl net.ipv4.tcp_congestion_control"
 		p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-		congestionControl = p.stdout.read()
-		congestionControl = str(congestionControl, encoding = self.codeMode)
+		buffer = p.stdout.read()
+		buffer = buffer.split()
+		congestionControl = str(buffer[-1], encoding = "utf-8")
 		return congestionControl
 
 	#回显调度算法
 	def getScheduler(self) -> str:
 		cmd = "ssh - p " + self.dataServerSSHPort + ' ' + self.dataServerName + "sudo sysctl net.mptcp.mptcp_scheduler"
 		p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-		scheduler = p.stdout.read()
-		scheduler = str(scheduler, encoding = self.codeMode)
+		buffer = p.stdout.read()
+		buffer = buffer.split()
+		scheduler = str(buffer[-1], encoding = "utf-8")
 		return scheduler
 
 	# 获取client的IP地址，便于在tcpdump时指定host，同时在结束实验时通过相关命令定位到指定进程
