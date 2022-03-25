@@ -12,7 +12,7 @@ if __name__ == '__main__':
     name = os.path.basename(__file__)
     r = check_process(name)
     if int(r) > 1:
-        print('{}{} is running, kill them'.format(r, name))
+        print('{} is running({}), kill them'.format(name, r))
         exit(0)
     # args from cmd line
     parser = argparse.ArgumentParser()
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                     p.wait()
                     now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                     print("[{}] {} output {}".format(now, cmd_i, p.stdout.read().decode()).strip())
-                    
+
                 subprocess.call("echo infonet123 | sudo -S echo '[{}] changed algs' > /var/www/html/server_status.txt".format(now), shell=True)
                 subprocess.call("echo infonet123 | sudo -S sysctl net.mptcp.mptcp_scheduler >> /var/www/html/server_status.txt", shell=True)
                 subprocess.call("echo infonet123 | sudo -S sysctl net.ipv4.tcp_congestion_control >> /var/www/html/server_status.txt", shell=True)
