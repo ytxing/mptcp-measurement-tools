@@ -12,9 +12,11 @@ def GoBulk(s: requests.Session, logger: tools.Logger, size: str = '10M'):
     '''
     if size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
         name = 'test{}'.format(size)
-        return tools.downloadFile(name, '{}/trunk/{}'.format(server_url, name), s, logger=logger)
-    
-    return tools.downloadFile('test10M', '{}/trunk/test10M'.format(server_url), s, logger=logger)
+    else:
+        name = 'test10M'
+    status_code, total_len, t, speed = tools.downloadFile(name, '{}/trunk/{}'.format(server_url, name), s, logger=logger)
+    logger.log("Final Result bulk code:{} total_len(bytes):{} time(ms):{} speed(mbps):{:.3f}".format(status_code, int(total_len), t, speed))
+    return status_code, total_len, t, speed
 
 class MimicPlayer:
     def __init__(self, s: requests.Session, r: str = '1920x1080_8000k', logger: tools.Logger = None):
@@ -104,7 +106,7 @@ class MimicPlayer:
         
         self.PlayerThreading.join()
         # self.TimerThreading.join()
-        self.logger.log("1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.timer_start, self.timer_all, self.timer_pause))
+        self.logger.log("Final Result stream {} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.resolution, self.timer_start, self.timer_all, self.timer_pause))
         return self.timer_start, self.timer_all, self.timer_pause
 
 def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000k'):
@@ -146,7 +148,7 @@ def GoPing(s: requests.Session, logger: tools.Logger):
             count += 1
         else:
             logger.log("Wrong code {}\t ping(ms):{}".format(status_code, t))
-    logger.log("({}/10) pings\t avg_ping_time(ms):{:.3f}".format(count, all_t/count))
+    logger.log("Final Result ping ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
 def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', size: str='10M'):
