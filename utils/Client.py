@@ -8,6 +8,7 @@ schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
 resolutions = ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k', '1920x1080_8000k', '3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
+path_configs = ["multipath", "wlan", "lte"]
 
 server_SSH_port = "1822"
 server_IP = "211.86.152.184"
@@ -47,21 +48,47 @@ def setQdisc(congestion_control):
 		cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.core.default_qdisc=fq"
 	else:
 		cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.core.default_qdisc=pfifo_fast"
+	if subprocess.call(cmd, shell = True):
+		raise Exception("{} failed".format(cmd))
+
+def nicControl(nic_name, type):
+	cmd = "echo a | sudo ifconfig " + nic_name + ' ' + type
+	if subprocess.call(cmd, shell = True):
+		raise Exception("{} failed".format(cmd))
+
+
 
 if __name__ == '__main__':
-	for scheduler in schedulers:
-		for congestion_control in congestion_controls:
-			setCongestionControl(congestion_control)
-			setScheduler(scheduler)
-			setQdisc(congestion_control)
+	while True:
+		#setCongestionControl(congestion_control)
+		#setScheduler(scheduler)
+		#setQdisc(congestion_control)
+		for path_config in path_configs:
+			if path_config == "multipath":
+				nicControl("eth1", "up")
+				nicControl("wlan0", "up")
+				time.sleep(5)
+				cmd = "sudo nmcli dev wifi connect 'LONGLONGLONG_5G' password 'ustc11314' iface wlan0"
+				if subprocess.call(cmd, shell = True):
+					raise Exception("{} failed".format(cmd))
+			elif path_config == "lte":
+				nicControl("eth1", "up")
+				nicControl("wlan0", "down")
+			else:
+				nicControl("eth1", "down")
+				nicControl("wlan0", "up")
+				time.sleep(5)
+				cmd = "sudo nmcli dev wifi connect 'LONGLONGLONG_5G' password 'ustc11314' iface wlan0"
+				if subprocess.call(cmd, shell = True):
+					raise Exception("{} failed".format(cmd))
+			time.sleep(20)
 			this_congestion_control = getCongestionControl()
 			this_scheduler = getScheduler()
-			print(this_scheduler)
-			exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 			for type in exp_types:
+				exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 				if type != "stream":
-					HttpClient.startExperiment(type, "./log", exp_time, '1920x1080_8000k', this_scheduler, this_congestion_control)
+					HttpClient.startExperiment(type, "./log", exp_time, '1920x1080_8000k', this_scheduler, this_congestion_control, path_config)
 				else:
 					for resolution in resolutions:
-						HttpClient.startExperiment(type, "./log", exp_time, resolution, this_scheduler, this_congestion_control)
+						HttpClient.startExperiment(type, "./log", exp_time, resolution, this_scheduler, this_congestion_control, path_config)
 

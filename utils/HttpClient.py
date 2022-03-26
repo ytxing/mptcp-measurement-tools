@@ -5,7 +5,7 @@ import queue
 import requests
 import tools
 import time
-server_url = 'http://192.168.5.81'
+server_url = 'http://211.86.152.184:1880'
 def GoBulk(s: requests.Session, logger: tools.Logger):
     '''
     downloadFile() -> status_code, total_len, time, speed
@@ -14,13 +14,13 @@ def GoBulk(s: requests.Session, logger: tools.Logger):
 
 class MimicPlayer:
     def __init__(self, s: requests.Session, r: str = '1920x1080_8000k', logger: tools.Logger = None):
-        self.session: requests.Session = s
+        self.session = s
         self.resolution = r
-        self.replay_buffer: queue.Queue = queue.Queue(0)
+        self.replay_buffer = queue.Queue(0)
         self.buffer_length = 10
-        self.get_seg: bool = True
-        self.play_pause: bool = False
-        self.play_end: bool = False
+        self.get_seg = True
+        self.play_pause = False
+        self.play_end = False
 
         self.timer_all = 0
         self.timer_pause = 0
@@ -145,14 +145,17 @@ def GoPing(s: requests.Session, logger: tools.Logger):
     logger.log("({}/10) pings\t avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k'):
-    log_file_name = 'log_{}_{}.txt'.format(id, type)
+def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', scheduler: str = '', congestion_control: str = '', path: str = ''):
+    if type == "stream":
+        log_file_name = 'log_{}_{}_{}_{}_{}_{}.txt'.format(id, type, scheduler, congestion_control, r, path)
+    else:
+        log_file_name = 'log_{}_{}_{}_{}_{}.txt'.format(id, type, scheduler, congestion_control, path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
-    req = requests.get('{}/server_status.txt'.format(server_url))
-    for line in req.content.decode().split('\n'):
-        logger.log(line)
+    #req = requests.get('{}/server_status.txt'.format(server_url))
+    #for line in req.content.decode().split('\n'):
+    #    logger.log(line)
     s = requests.Session()
     if type == 'bulk':
         GoBulk(s, logger)
