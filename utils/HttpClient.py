@@ -151,7 +151,7 @@ def GoPing(s: requests.Session, logger: tools.Logger):
     logger.log("Final Result ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', scheduler: str = '', congestion_control: str = '', path: str = ''):
+def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', scheduler: str = '', congestion_control: str = '', path: str = '', size: str = '10M'):
     if type == "stream":
         log_file_name = 'log_{}_{}_{}_{}_{}_{}.txt'.format(id, type, scheduler, congestion_control, r, path)
     else:
@@ -164,11 +164,11 @@ def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x
     #    logger.log(line)
     s = requests.Session()
     if type == 'bulk':
-        GoBulk(s, logger)
+        GoBulk(s, logger, size=size)
     elif type == 'ping':
         GoPing(s, logger)
     elif type == 'stream':
-        GoStream(s, logger, r)
+        GoStream(s, logger, r=r)
 
 
 if __name__ == '__main__':
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--type', help = 'type of experiment', choices = ['bulk', 'ping', 'stream'])
     # test1000K  test1000M  test100K  test100M  test10B  test10K  test10M  test1K  test1M
     parser.add_argument('--size', help = 'trunk size',
-                        choices = ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M'])
+                        choices = ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M'], default='10M')
     parser.add_argument('-l', '--log_path', help = 'log path',
                         default = './log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
     parser.add_argument('-i', '--id', help = 'id of experiment', default = 'lib')
