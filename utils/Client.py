@@ -63,22 +63,26 @@ if __name__ == '__main__':
 		#setCongestionControl(congestion_control)
 		#setScheduler(scheduler)
 		#setQdisc(congestion_control)
+		nic_name1 = 'eth1'
+		nic_name2 = 'wlan0'
+		wifi_ssid = 'LONGLONGLONG_5G'
+		wifi_pwd = 'ustc11314'
 		for path_config in path_configs:
 			if path_config == "multipath":
-				nicControl("eth1", "up")
-				nicControl("wlan0", "up")
+				nicControl(nic_name1, "up")
+				nicControl(nic_name2, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect 'LONGLONGLONG_5G' password 'ustc11314' iface wlan0"
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' iface wlan0".format(wifi_ssid, wifi_pwd)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			elif path_config == "lte":
-				nicControl("eth1", "up")
-				nicControl("wlan0", "down")
+				nicControl(nic_name1, "up")
+				nicControl(nic_name2, "down")
 			else:
-				nicControl("eth1", "down")
-				nicControl("wlan0", "up")
+				nicControl(nic_name1, "down")
+				nicControl(nic_name2, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect 'LONGLONGLONG_5G' password 'ustc11314' iface wlan0"
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' iface wlan0".format(wifi_ssid, wifi_pwd)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
