@@ -50,7 +50,7 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
     for chunk in r.iter_content(chunk_size=512):
         if chunk:
             curr_len += len(chunk)
-            min_display_interval = 100
+            min_display_interval = 1000 # in ms
             time_now = getTimeMs()
             if time_now - time_last > min_display_interval or curr_len == total_len:
                 p = curr_len / total_len * 100
@@ -60,6 +60,8 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
                 curr_len_last = curr_len
                 logger.log('Loading name:{} size(B):{} percentage(%/{}):{:.3f} speed(mbps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
                 time_last = getTimeMs()
+                if p == 100 or curr_len == total_len:
+                    break
     speed = curr_len / (time_now - time_start)
     speed *= 1000 * 8
     speed /= 1024*1024
