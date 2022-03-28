@@ -6,7 +6,7 @@ import HttpClient
 
 schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
-resolutions = ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k', '1920x1080_8000k', '3840x2160_12000k']
+resolutions = ['1920x1080_8000k', '3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
 path_configs = ["multipath", "wlan", "lte"]
 
@@ -63,26 +63,27 @@ if __name__ == '__main__':
 		#setCongestionControl(congestion_control)
 		#setScheduler(scheduler)
 		#setQdisc(congestion_control)
-		nic_name1 = 'eth1'
-		nic_name2 = 'wlan0'
+		
+		nic_lte = 'eth1'
+		nic_wlan = 'wlan0'
 		wifi_ssid = 'LONGLONGLONG_5G'
 		wifi_pwd = 'ustc11314'
 		for path_config in path_configs:
 			if path_config == "multipath":
-				nicControl(nic_name1, "up")
-				nicControl(nic_name2, "up")
+				nicControl(nic_lte, "up")
+				nicControl(nic_wlan, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' iface wlan0".format(wifi_ssid, wifi_pwd)
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			elif path_config == "lte":
-				nicControl(nic_name1, "up")
-				nicControl(nic_name2, "down")
+				nicControl(nic_lte, "up")
+				nicControl(nic_wlan, "down")
 			else:
-				nicControl(nic_name1, "down")
-				nicControl(nic_name2, "up")
+				nicControl(nic_lte, "down")
+				nicControl(nic_wlan, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' iface wlan0".format(wifi_ssid, wifi_pwd)
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
@@ -91,8 +92,14 @@ if __name__ == '__main__':
 			for type in exp_types:
 				exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 				if type != "stream":
-					HttpClient.startExperiment(type, "./log", exp_time, '1920x1080_8000k', this_scheduler, this_congestion_control, path_config)
+					log_name = "log_"
+					log_name += "_".join(exp_time, type, this_scheduler, this_congestion_control, path_config)
+					log_name += '.txt'
+					HttpClient.startExperiment(type, "./log{}".format(time.strftime("%Y-%m-%d", time.localtime())), log_name)
 				else:
 					for resolution in resolutions:
-						HttpClient.startExperiment(type, "./log", exp_time, resolution, this_scheduler, this_congestion_control, path_config)
+						log_name = "log_"
+						log_name += "_".join(exp_time, type, resolution, this_scheduler, this_congestion_control, path_config)
+						log_name += '.txt'
+						HttpClient.startExperiment(type, "./log{}".format(time.strftime("%Y-%m-%d", time.localtime())), log_name)
 

@@ -151,11 +151,8 @@ def GoPing(s: requests.Session, logger: tools.Logger):
     logger.log("Final Result ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', id: str='', r: str='1920x1080_8000k', scheduler: str = '', congestion_control: str = '', path: str = '', size: str = '10M'):
-    if type == "stream":
-        log_file_name = 'log_{}_{}_{}_{}_{}_{}.txt'.format(id, type, scheduler, congestion_control, r, path)
-    else:
-        log_file_name = 'log_{}_{}_{}_{}_{}.txt'.format(id, type, scheduler, congestion_control, path)
+def startExperiment(type: str, log_path: str='./log/', log_file_name: str='log.txt', r: str='1920x1080_8000k', size: str = '10M'):
+    log_file_name = '{}.txt'.format(id)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
