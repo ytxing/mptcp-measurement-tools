@@ -6,10 +6,11 @@ import requests
 import tools
 import time
 server_url = 'http://211.86.152.184:1880'
-def GoBulk(s: requests.Session, logger: tools.Logger, size : str = "10M"):
+def GoBulk(s: requests.Session, url: str, logger: tools.Logger, size : str = "10M"):
     '''
     downloadFile() -> status_code, total_len, time, speed
     '''
+    server_url = url
     if size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
         name = 'test{}'.format(size)
     else:
@@ -19,8 +20,9 @@ def GoBulk(s: requests.Session, logger: tools.Logger, size : str = "10M"):
     return status_code, total_len, t, speed
 
 class MimicPlayer:
-    def __init__(self, s: requests.Session, r: str = '1920x1080_8000k', logger: tools.Logger = None):
+    def __init__(self, s: requests.Session, url: str, r: str = '1920x1080_8000k', logger: tools.Logger = None):
         self.session = s
+        self.url = url
         self.resolution = r
         self.replay_buffer = queue.Queue(0)
         self.buffer_length = 10
@@ -80,6 +82,7 @@ class MimicPlayer:
         bbb_30fps-bbb_30fps.fbbb_30fps_3840x2160_12000k.mp4
         ```
         '''
+        server_url = self.url
         self.PlayerThreading = threading.Thread(target=self.Player)
         # self.TimerThreading = threading.Thread(target=self.Timer)
         self.replay_buffer.put(4)
@@ -109,7 +112,7 @@ class MimicPlayer:
         self.logger.log("Final Result {} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.resolution, self.timer_start, self.timer_all, self.timer_pause))
         return self.timer_start, self.timer_all, self.timer_pause
 
-def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000k'):
+def GoStream(s: requests.Session, url: str, logger: tools.Logger, r: str = '1920x1080_8000k'):
     '''
     -> 1st_seg_time, total_time, pause_time
     ```
@@ -126,12 +129,13 @@ def GoStream(s: requests.Session, logger: tools.Logger, r: str = '1920x1080_8000
     bbb_30fps-bbb_30fps.fbbb_30fps_3840x2160_12000k.mp4
     ```
         '''
-    player = MimicPlayer(s, r, logger=logger)
+    player = MimicPlayer(s, url, r, logger=logger)
     return player.start()
 
-def GoPing(s: requests.Session, logger: tools.Logger):
+def GoPing(s: requests.Session, url: str, logger: tools.Logger):
     # 这两次得到的时延有较大的差距，因为第一次需要三次握手
     logger.log("first ping")
+    server_url = url
     status_code, _, t1, _ = tools.downloadFile('test10B', '{}/trunk/test10B'.format(server_url), s, logger=logger)
     if status_code < 300:
         logger.log("Code {}\t ping(ms):{}".format(status_code, t1))
@@ -151,8 +155,16 @@ def GoPing(s: requests.Session, logger: tools.Logger):
     logger.log("Final Result ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(type: str, log_path: str='./log/', log_file_name: str='log.txt', r: str='1920x1080_8000k', size: str = '10M'):
-    log_file_name = '{}.txt'.format(id)
+def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', r: str='1920x1080_8000k', size: str = '10M'):
+    server_url = url
+    req = requests.get('{}/server_status.txt'.format(server_url))
+    for line in req.content.decode().split('\n'):
+        if line.startswith('net.mptcp.mptcp_scheduler ='):
+                scheduler = line.split('=')[1].strip()
+        if line.startswith('net.ipv4.tcp_congestion_control ='):
+                congestion_control = line.split('=')[1].strip()
+    log_file_name = '{}_{}_{}.txt'.format(log_file_name, scheduler, congestion_control)
+    print(log_file_name)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
@@ -161,11 +173,11 @@ def startExperiment(type: str, log_path: str='./log/', log_file_name: str='log.t
     #    logger.log(line)
     s = requests.Session()
     if type == 'bulk':
-        GoBulk(s, logger, size=size)
+        GoBulk(s, url, logger, size=size)
     elif type == 'ping':
-        GoPing(s, logger)
+        GoPing(s, url, logger)
     elif type == 'stream':
-        GoStream(s, logger, r=r)
+        GoStream(s, url, logger, r=r)
 
 
 if __name__ == '__main__':
@@ -196,20 +208,24 @@ if __name__ == '__main__':
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
             exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
-            startExperiment(type, args.log_path, exp_id, args.resolution)
+            startExperiment(type, args.log_path, log_file_name = exp_id, r = args.resolution)
     elif args.type == 'stream':
         exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
         if args.resolution in ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k',
                                '1920x1080_8000k', '3840x2160_12000k']:
-            startExperiment(args.type, args.log_path, exp_id, r = args.resolution)
+            startExperiment(args.type, args.log_path, log_file_name = exp_id, r = args.resolution)
         else:
             print('Wrong resolution: {}'.format(args.resolution))
     elif args.type == 'bulk':
         exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
         if args.size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
-            startExperiment(args.type, args.log_path, exp_id, size = args.size)
+            startExperiment(args.type, args.log_path, log_file_name = exp_id, size = args.size)
         else:
             print('Wrong size: {}'.format(args.size))
+    elif args.type == 'ping':
+        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        print(exp_id)
+        startExperiment(args.type, args.log_path, log_file_name = exp_id)
     else:
         print('please specify type of experiment')
         exit(1)

@@ -1,4 +1,6 @@
+import argparse
 import subprocess
+import sys
 import time
 import threading
 import tools
@@ -8,10 +10,14 @@ schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
 resolutions = ['1920x1080_8000k', '3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
-path_configs = ["multipath", "wlan", "lte"]
+accesses = ["multipath", "wlan", "lte"]
 
-server_SSH_port = "1822"
-server_IP = "211.86.152.184"
+# server_SSH_port = "1822"
+# server_IP = "211.86.152.184"
+
+server_SSH_port = "22"
+server_IP = "47.100.85.48"
+
 server_user = "libserver"
 server_root = "root"
 
@@ -25,23 +31,23 @@ def setScheduler(scheduler):
 	if subprocess.call(cmd, shell = True):
 		raise Exception("{} failed".format(cmd))
 
-#回显拥塞控制算法
-def getCongestionControl() -> str:
-	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.ipv4.tcp_congestion_control"
-	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-	buffer = p.stdout.read()
-	buffer = buffer.split()
-	congestionControl = str(buffer[-1], encoding = "utf-8")
-	return congestionControl
+# #回显拥塞控制算法
+# def getCongestionControl() -> str:
+# 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.ipv4.tcp_congestion_control"
+# 	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
+# 	buffer = p.stdout.read().decode()
+# 	buffer = buffer.split()[-1]
+# 	congestionControl = str(buffer)
+# 	return congestionControl
 
-#回显调度算法
-def getScheduler() -> str:
-	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.mptcp.mptcp_scheduler"
-	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-	buffer = p.stdout.read()
-	buffer = buffer.split()
-	scheduler = str(buffer[-1], encoding = "utf-8")
-	return scheduler
+# #回显调度算法
+# def getScheduler() -> str:
+# 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.mptcp.mptcp_scheduler"
+# 	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
+# 	buffer = p.stdout.read().decode()
+# 	buffer = buffer.split()[-1]
+# 	scheduler = str(buffer)
+# 	return scheduler
 
 def setQdisc(congestion_control):
 	if congestion_control == "bbr":
@@ -63,20 +69,48 @@ if __name__ == '__main__':
 		#setCongestionControl(congestion_control)
 		#setScheduler(scheduler)
 		#setQdisc(congestion_control)
-		
+		# nicControl("eth0", "down")
+		# 接收命令行参数
+		parser = argparse.ArgumentParser()
+		parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
+		parser.add_argument('-u', '--url', help = 'url')
+
+		args = parser.parse_args()
+		if not args.url:
+			print("url is required (http://xxx.xxx.xxx.xxx:port)")
+			sys.exit(1)
+		url = args.url
+
+		if args.test:
+			print("run for test")
+			access = 'none'
+			for type in exp_types:
+				if type != "stream":
+					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+					exp_id = "log_"
+					exp_id += "_".join([exp_time, access, type])
+					HttpClient.startExperiment(url, type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id)
+				else:
+					for resolution in resolutions:
+						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+						exp_id = "log_"
+						exp_id += "_".join([exp_time, access, type, resolution])
+						HttpClient.startExperiment(url, type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id, r = resolution)
+			break
+
 		nic_lte = 'eth1'
 		nic_wlan = 'wlan0'
 		wifi_ssid = 'LONGLONGLONG_5G'
 		wifi_pwd = 'ustc11314'
-		for path_config in path_configs:
-			if path_config == "multipath":
+		for access in accesses:
+			if access == "multipath":
 				nicControl(nic_lte, "up")
 				nicControl(nic_wlan, "up")
 				time.sleep(5)
 				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
-			elif path_config == "lte":
+			elif access == "lte":
 				nicControl(nic_lte, "up")
 				nicControl(nic_wlan, "down")
 			else:
@@ -87,19 +121,18 @@ if __name__ == '__main__':
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
-			this_congestion_control = getCongestionControl()
-			this_scheduler = getScheduler()
+
+
 			for type in exp_types:
-				exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 				if type != "stream":
-					log_name = "log_"
-					log_name += "_".join(exp_time, type, this_scheduler, this_congestion_control, path_config)
-					log_name += '.txt'
-					HttpClient.startExperiment(type, "./log{}".format(time.strftime("%Y-%m-%d", time.localtime())), log_name)
+					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+					exp_id = "log_"
+					exp_id += "_".join([exp_time, access, type])
+					HttpClient.startExperiment(type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id)
 				else:
 					for resolution in resolutions:
-						log_name = "log_"
-						log_name += "_".join(exp_time, type, resolution, this_scheduler, this_congestion_control, path_config)
-						log_name += '.txt'
-						HttpClient.startExperiment(type, "./log{}".format(time.strftime("%Y-%m-%d", time.localtime())), log_name)
+						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+						exp_id = "log_"
+						exp_id += "_".join([exp_time, access, type, resolution])
+						HttpClient.startExperiment(type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id, r = resolution)
 
