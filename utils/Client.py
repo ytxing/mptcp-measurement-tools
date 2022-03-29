@@ -127,7 +127,7 @@ if __name__ == '__main__':
 				nicControl(nic_wlan, "up")
 				print('sleep 5s')
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
+				cmd = "echo a | sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
