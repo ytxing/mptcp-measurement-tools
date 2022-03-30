@@ -127,7 +127,6 @@ if __name__ == '__main__':
 				print('sleep 5s')
 				time.sleep(5)
 				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-				print(cmd)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			elif access == "lte":
@@ -140,7 +139,7 @@ if __name__ == '__main__':
 				nicControl(nic_wlan, "up")
 				print('sleep 5s')
 				time.sleep(5)
-				cmd = "echo a | sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
