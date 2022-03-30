@@ -1,11 +1,13 @@
 import argparse
 import os
-import threading
+import multiprocessing
 import queue
 import requests
 import tools
 import time
 server_url = 'http://211.86.152.184:1880'
+EXP_TIMEOUT = 500 # max exp time(s)
+
 def GoBulk(s: requests.Session, url: str, logger: tools.Logger, size : str = "10M"):
     '''
     downloadFile() -> status_code, total_len, time, speed
@@ -83,8 +85,7 @@ class MimicPlayer:
         ```
         '''
         server_url = self.url
-        self.PlayerThreading = threading.Thread(target=self.Player)
-        # self.TimerThreading = threading.Thread(target=self.Timer)
+        self.PlayerProcessing = multiprocessing.Process(target=self.Player)
         self.replay_buffer.put(4)
         self.got_seg_count += 1
         
@@ -96,8 +97,7 @@ class MimicPlayer:
         self.got_seg_count += 1
         self.replay_buffer.put(4)
         self.timer_start = time.time() - time_start 
-        self.PlayerThreading.start()
-        # self.TimerThreading.start()
+        self.PlayerProcessing.start()
 
         while self.got_seg_count < self.total_seg_count:
             qsize = self.replay_buffer.qsize()
@@ -107,8 +107,7 @@ class MimicPlayer:
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
         
-        self.PlayerThreading.join()
-        # self.TimerThreading.join()
+        self.PlayerProcessing.join()
         self.logger.log("Final Result {} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.resolution, self.timer_start, self.timer_all, self.timer_pause))
         return self.timer_start, self.timer_all, self.timer_pause
 
@@ -156,8 +155,11 @@ def GoPing(s: requests.Session, url: str, logger: tools.Logger):
     return t1, all_t/count
 
 def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', r: str='1920x1080_8000k', size: str = '10M'):
-    server_url = url
-    req = requests.get('{}/server_status.txt'.format(server_url))
+    if not url:
+        print("need a url")
+        return
+    # get algorithms the server using
+    req = requests.get('{}/server_status.txt'.format(url))
     for line in req.content.decode().split('\n'):
         if line.startswith('net.mptcp.mptcp_scheduler ='):
                 scheduler = line.split('=')[1].strip()
@@ -168,16 +170,52 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
-    #req = requests.get('{}/server_status.txt'.format(server_url))
-    #for line in req.content.decode().split('\n'):
-    #    logger.log(line)
+    # get local nic info
+    config = tools.getConfigFromFile('nic_setup.config')
+    if 'nic_lte' in config:
+        nic_lte = config['nic_lte']
+    else:
+        nic_lte = 'eth0'
+        logger.log('NIC CONFIG WARNING no nic_lte')
+    if 'nic_wlan' in config:
+        nic_wlan = config['nic_wlan']
+    else:
+        nic_wlan = 'wlan0'
+        logger.log('NIC CONFIG WARNING no nic_wlan')
+    logger.log('NIC CONFIG nic_lte:{} nic_wlan:{}'.format(nic_lte, nic_wlan))
+    lte_bytes_start = tools.getRcvBytesOfIface(nic_lte)
+    wlan_bytes_start = tools.getRcvBytesOfIface(nic_wlan)
+    # start the experiment
     s = requests.Session()
     if type == 'bulk':
-        GoBulk(s, url, logger, size=size)
+        GoBulkProcessing = multiprocessing.Process(target=GoBulk, args=(s, url, logger, size))
+        # ExpTimeoutProcessing = multiprocessing.Process(target=ExpTimeout, args=(100))
+        GoBulkProcessing.start()
+        GoBulkProcessing.join(timeout=EXP_TIMEOUT)
+        if GoBulkProcessing.is_alive():
+            logger.log('Timeout {}s GoBulk terminate'.format(EXP_TIMEOUT))
+            GoBulkProcessing.terminate()
+        # GoBulk(s, url, logger, size=size)
     elif type == 'ping':
-        GoPing(s, url, logger)
+        GoPingProcessing = multiprocessing.Process(target=GoPing, args=(s, url, logger))
+        GoPingProcessing.start()
+        GoPingProcessing.join(timeout=EXP_TIMEOUT)
+        if GoPingProcessing.is_alive():
+            logger.log('Timeout {}s GoPing terminate'.format(EXP_TIMEOUT))
+            GoPingProcessing.terminate()
     elif type == 'stream':
-        GoStream(s, url, logger, r=r)
+        GoStreamProcessing = multiprocessing.Process(target=GoStream, args=(s, url, logger, r))
+        GoStreamProcessing.start()
+        GoStreamProcessing.join(timeout=EXP_TIMEOUT)
+        if GoStreamProcessing.is_alive():
+            logger.log('Timeout {}s GoStream terminate'.format(EXP_TIMEOUT))
+            GoStreamProcessing.terminate()
+
+    s.close()
+    lte_bytes_end = tools.getRcvBytesOfIface(nic_lte)
+    wlan_bytes_end = tools.getRcvBytesOfIface(nic_wlan)
+    logger.log('NIC BYTES ifname:{} lte_bytes_start:{} lte_bytes_end:{}'.format(nic_lte, lte_bytes_start, lte_bytes_end))
+    logger.log('NIC BYTES ifname:{} wlan_bytes_start:{} wlan_bytes_end:{}'.format(nic_wlan, wlan_bytes_start, wlan_bytes_end))
 
 
 if __name__ == '__main__':
@@ -193,7 +231,7 @@ if __name__ == '__main__':
                         default = './log-{}/'.format(time.strftime('%Y%m%d-%H%M%S')))
     parser.add_argument('-i', '--id', help = 'id of experiment', default = 'lib')
     parser.add_argument('--inside', help = 'run from the inside', action = 'store_true', default = False)
-    parser.add_argument('-u', '--url', help = 'url of server', default = 'http://211.86.152.184:1880')
+    parser.add_argument('-u', '--url', help = 'url of server')
     parser.add_argument('-r', '--resolution', help = 'resolution of stream', default = '1920x1080_8000k')
     parser.add_argument('-a', '--all', help = 'all experiment', action = 'store_true')
     args = parser.parse_args()
@@ -203,41 +241,35 @@ if __name__ == '__main__':
     # server_url = 'http://192.168.5.81'
     if args.inside:
         server_url = 'http://192.168.5.81'
-    else:
+    elif args.url:
         server_url = args.url
+    else:
+        print('Please input the url of server or use --inside')
+        exit(1)
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
-            exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
-            startExperiment(type, args.log_path, log_file_name = exp_id, r = args.resolution)
+            exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
+            startExperiment(server_url, type, args.log_path, log_file_name = exp_id, r = args.resolution)
     elif args.type == 'stream':
-        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        
         if args.resolution in ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k',
                                '1920x1080_8000k', '3840x2160_12000k']:
-            startExperiment(args.type, args.log_path, log_file_name = exp_id, r = args.resolution)
+            exp_id = '{}_{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, args.type, args.resolution)
+            startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id, r = args.resolution)
         else:
             print('Wrong resolution: {}'.format(args.resolution))
     elif args.type == 'bulk':
-        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
         if args.size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
-            startExperiment(args.type, args.log_path, log_file_name = exp_id, size = args.size)
+            startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id, size = args.size)
         else:
             print('Wrong size: {}'.format(args.size))
     elif args.type == 'ping':
-        exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id)
+        exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
         print(exp_id)
-        startExperiment(args.type, args.log_path, log_file_name = exp_id)
+        startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id)
     else:
         print('please specify type of experiment')
         exit(1)
-
-    # log_path = './log/'
-    # my_id = 'lib'
-    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    # startExperiment('stream', log_path, exp_id)
-    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    # startExperiment('ping', log_path, exp_id)
-    # exp_id = '{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), my_id)
-    # startExperiment('bulk', log_path, exp_id)
-
 
 
