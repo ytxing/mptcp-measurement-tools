@@ -9,7 +9,7 @@ import HttpClient
 
 schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
-resolutions = ['1920x1080_8000k', '3840x2160_12000k']
+resolutions = ['3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
 accesses = ["lte", "wlan", "multipath"]
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 			print("need a config file")
 			sys.exit(1)
 		for key in config:
-			if not key in [nic_lte, nic_wlan, wifi_ssid, wifi_password]:
+			if not key in ['nic_lte', 'nic_wlan', 'wifi_ssid', 'wifi_password']:
 				print("{} is not a valid access".format(key))
 				sys.exit(1)
 			if key == "nic_lte":
