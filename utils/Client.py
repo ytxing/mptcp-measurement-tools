@@ -80,7 +80,6 @@ if __name__ == '__main__':
 			print("url is required (http://xxx.xxx.xxx.xxx:port)")
 			sys.exit(1)
 		url = args.url
-
 		if args.test:
 			print("run for test")
 			access = 'none'
@@ -98,16 +97,29 @@ if __name__ == '__main__':
 						HttpClient.startExperiment(url, type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id, r = resolution)
 			break
 
-		nic_lte = 'eth1'
-		nic_wlan = 'wlan0'
-		wifi_ssid = 'LONGLONGLONG_5G'
-		wifi_pwd = 'ustc11314'
+		config = tools.getConfigFromFile('nic_setup.config')
+		if config == None:
+			print("need a config file")
+			sys.exit(1)
+		for key in config:
+			if not key in [nic_lte, nic_wlan, wifi_ssid, wifi_password]:
+				print("{} is not a valid access".format(key))
+				sys.exit(1)
+			if key == "nic_lte":
+				nic_lte = config[key]
+			elif key == "nic_wlan":
+				nic_wlan = config[key]
+			elif key == "wifi_ssid":
+				wifi_ssid = config[key]
+			elif key == "wifi_password":
+				wifi_password = config[key]
+
 		for access in accesses:
 			if access == "multipath":
 				nicControl(nic_lte, "up")
 				nicControl(nic_wlan, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			elif access == "lte":
@@ -117,7 +129,7 @@ if __name__ == '__main__':
 				nicControl(nic_lte, "down")
 				nicControl(nic_wlan, "up")
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_pwd, nic_wlan)
+				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)

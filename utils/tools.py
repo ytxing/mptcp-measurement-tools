@@ -3,6 +3,32 @@ import requests
 import time
 import sys
 
+def getConfigFromFile(file_name):
+    '''
+    getConfigFromFile() -> config
+    '''
+    config = {}
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        line = line.strip()
+        if line.startswith('#') or line == '':
+            continue
+        key, value = line.split('=')
+        config[key.strip()] = value.strip()
+    print(config)
+    return config
+
+def getRcvBytesOfIface(iface):
+    '''
+    getRcvBytesOfIface() -> bytes
+    '''
+    with open('/proc/net/dev', 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if iface in line:
+            return int(line.split()[1])
+    return 0
 class Logger:
     def __init__(self, prefix: str='nonprefix', log_file: str='log_empty', log_level: int=0):
         self.prefix = prefix
@@ -69,5 +95,10 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
     return r.status_code, total_len, (time_now - time_start), speed
     
 if __name__ == '__main__':
-    s = requests.Session()
-    downloadFile('test1000m', 'http://192.168.5.136/trunk/test10M', s)
+    config = getConfigFromFile('nic_setup.config')
+    for key in config:
+        print(key, config[key])
+    if 'nic_lte' in config and 'nic_wlan' in config:
+        nic_lte = config['nic_lte']
+        nic_wlan = config['nic_wlan']
+    print('GOOD CONFIG nic_lte:{} nic_wlan:{}'.format(nic_lte, nic_wlan))
