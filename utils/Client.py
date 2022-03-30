@@ -11,7 +11,7 @@ schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
 resolutions = ['3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
-accesses = ["lte", "wlan", "multipath"]
+accesses = ["wlan", "lte", "multipath"]
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -59,7 +59,7 @@ def setQdisc(congestion_control):
 		raise Exception("{} failed".format(cmd))
 
 def nicControl(nic_name, type):
-	cmd = "echo a | sudo ifconfig " + nic_name + ' ' + type
+	cmd = "echo a | sudo -S ifconfig " + nic_name + ' ' + type
 	print(cmd)
 	if subprocess.call(cmd, shell = True):
 		raise Exception("{} failed".format(cmd))
@@ -84,8 +84,23 @@ if __name__ == '__main__':
 	log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
 	if not os.path.exists(log_path_today):
 		os.mkdir(log_path_today)
-
-	while True:
+	config = tools.getConfigFromFile('nic_setup.config')
+	if config == None:
+		print("need a config file")
+		sys.exit(1)
+	for key in config:
+		if not key in ['nic_lte', 'nic_wlan', 'wifi_ssid', 'wifi_password']:
+			print("{} is not a valid access".format(key))
+			sys.exit(1)
+		if key == "nic_lte":
+			nic_lte = config[key]
+		elif key == "nic_wlan":
+			nic_wlan = config[key]
+		elif key == "wifi_ssid":
+			wifi_ssid = config[key]
+		elif key == "wifi_password":
+			wifi_password = config[key]
+		
 		if args.test:
 			print("run for test")
 			access = 'none'
@@ -101,25 +116,8 @@ if __name__ == '__main__':
 						exp_id = "log_"
 						exp_id += "_".join([exp_time, access, type, resolution])
 						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
-			break
 
-		config = tools.getConfigFromFile('nic_setup.config')
-		if config == None:
-			print("need a config file")
-			sys.exit(1)
-		for key in config:
-			if not key in ['nic_lte', 'nic_wlan', 'wifi_ssid', 'wifi_password']:
-				print("{} is not a valid access".format(key))
-				sys.exit(1)
-			if key == "nic_lte":
-				nic_lte = config[key]
-			elif key == "nic_wlan":
-				nic_wlan = config[key]
-			elif key == "wifi_ssid":
-				wifi_ssid = config[key]
-			elif key == "wifi_password":
-				wifi_password = config[key]
-
+	while True:
 		for access in accesses:
 			if access == "multipath":
 				nicControl(nic_lte, "up")
@@ -142,6 +140,7 @@ if __name__ == '__main__':
 				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
+			print('sleep 20s')
 			time.sleep(20)
 
 
