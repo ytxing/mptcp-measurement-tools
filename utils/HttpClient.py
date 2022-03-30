@@ -2,6 +2,7 @@ import argparse
 import os
 import multiprocessing
 import queue
+import subprocess
 import requests
 import tools
 import time
@@ -170,7 +171,7 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     log_file_path = os.path.join(log_path, log_file_name)
-    logger = tools.Logger(prefix='{}'.format(type), log_file_path=log_file_path)
+    logger = tools.Logger(prefix='{}'.format(type), log_file=log_file_path)
     # get local nic info
     config = tools.getConfigFromFile('nic_setup.config')
     if 'nic_lte' in config:
@@ -186,17 +187,20 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     logger.log('NIC CONFIG nic_lte:{} nic_wlan:{}'.format(nic_lte, nic_wlan))
     lte_bytes_start = tools.getRcvBytesOfIface(nic_lte)
     wlan_bytes_start = tools.getRcvBytesOfIface(nic_wlan)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -i {} src host {}'.format(nic_wlan, '47.100.85.48')
+    # dumpWlanProcess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -i {} src host {}'.format(nic_lte, '47.100.85.48')
+
+
     # start the experiment
     s = requests.Session()
     if type == 'bulk':
         GoBulkProcessing = multiprocessing.Process(target=GoBulk, args=(s, url, logger, size))
-        # ExpTimeoutProcessing = multiprocessing.Process(target=ExpTimeout, args=(100))
         GoBulkProcessing.start()
         GoBulkProcessing.join(timeout=EXP_TIMEOUT)
         if GoBulkProcessing.is_alive():
             logger.log('Timeout {}s GoBulk terminate'.format(EXP_TIMEOUT))
             GoBulkProcessing.terminate()
-        # GoBulk(s, url, logger, size=size)
     elif type == 'ping':
         GoPingProcessing = multiprocessing.Process(target=GoPing, args=(s, url, logger))
         GoPingProcessing.start()
@@ -215,8 +219,8 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     s.close()
     lte_bytes_end = tools.getRcvBytesOfIface(nic_lte)
     wlan_bytes_end = tools.getRcvBytesOfIface(nic_wlan)
-    logger.log('NIC BYTES ifname:{} lte_bytes_start:{} lte_bytes_end:{}'.format(nic_lte, lte_bytes_start, lte_bytes_end))
-    logger.log('NIC BYTES ifname:{} wlan_bytes_start:{} wlan_bytes_end:{}'.format(nic_wlan, wlan_bytes_start, wlan_bytes_end))
+    logger.log('NIC BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_end - lte_bytes_start))
+    logger.log('NIC BYTES ifname:{} total(bytes):{} '.format(nic_wlan, wlan_bytes_end - wlan_bytes_start))
 
 
 if __name__ == '__main__':
