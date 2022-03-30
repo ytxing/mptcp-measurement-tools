@@ -169,7 +169,8 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     print(log_file_name)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    logger = tools.Logger(prefix='{}'.format(type), log_file=os.path.join(log_path, log_file_name))
+    log_file_path = os.path.join(log_path, log_file_name)
+    logger = tools.Logger(prefix='{}'.format(type), log_file_path=log_file_path)
     # get local nic info
     config = tools.getConfigFromFile('nic_setup.config')
     if 'nic_lte' in config:

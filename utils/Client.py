@@ -1,4 +1,5 @@
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -10,7 +11,7 @@ schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
 resolutions = ['1920x1080_8000k', '3840x2160_12000k']
 exp_types = ['bulk', 'ping', 'stream']
-accesses = ["multipath", "wlan", "lte"]
+accesses = ["lte", "wlan", "multipath"]
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -59,27 +60,32 @@ def setQdisc(congestion_control):
 
 def nicControl(nic_name, type):
 	cmd = "echo a | sudo ifconfig " + nic_name + ' ' + type
+	print(cmd)
 	if subprocess.call(cmd, shell = True):
 		raise Exception("{} failed".format(cmd))
 
 
 
 if __name__ == '__main__':
-	while True:
-		#setCongestionControl(congestion_control)
-		#setScheduler(scheduler)
-		#setQdisc(congestion_control)
-		# nicControl("eth0", "down")
-		# 接收命令行参数
-		parser = argparse.ArgumentParser()
-		parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
-		parser.add_argument('-u', '--url', help = 'url')
+	#setCongestionControl(congestion_control)
+	#setScheduler(scheduler)
+	#setQdisc(congestion_control)
+	# nicControl("eth0", "down")
+	# 接收命令行参数
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
+	parser.add_argument('-u', '--url', help = 'url')
 
-		args = parser.parse_args()
-		if not args.url:
-			print("url is required (http://xxx.xxx.xxx.xxx:port)")
-			sys.exit(1)
-		url = args.url
+	args = parser.parse_args()
+	if not args.url:
+		print("url is required (http://xxx.xxx.xxx.xxx:port)")
+		sys.exit(1)
+	url = args.url
+	log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
+	if not os.path.exists(log_path_today):
+		os.mkdir(log_path_today)
+
+	while True:
 		if args.test:
 			print("run for test")
 			access = 'none'
@@ -88,13 +94,13 @@ if __name__ == '__main__':
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
 					exp_id += "_".join([exp_time, access, type])
-					HttpClient.startExperiment(url, type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id)
+					HttpClient.startExperiment(url, type, log_path_today, exp_id)
 				else:
 					for resolution in resolutions:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
 						exp_id += "_".join([exp_time, access, type, resolution])
-						HttpClient.startExperiment(url, type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id, r = resolution)
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
 			break
 
 		config = tools.getConfigFromFile('nic_setup.config')
@@ -118,18 +124,23 @@ if __name__ == '__main__':
 			if access == "multipath":
 				nicControl(nic_lte, "up")
 				nicControl(nic_wlan, "up")
+				print('sleep 5s')
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+				print(cmd)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			elif access == "lte":
 				nicControl(nic_lte, "up")
 				nicControl(nic_wlan, "down")
+				print('sleep 5s')
+				time.sleep(5)
 			else:
 				nicControl(nic_lte, "down")
 				nicControl(nic_wlan, "up")
+				print('sleep 5s')
 				time.sleep(5)
-				cmd = "sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+				cmd = "echo a | sudo nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
@@ -140,11 +151,11 @@ if __name__ == '__main__':
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
 					exp_id += "_".join([exp_time, access, type])
-					HttpClient.startExperiment(type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id)
+					HttpClient.startExperiment(url, type, log_path_today, exp_id)
 				else:
 					for resolution in resolutions:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
 						exp_id += "_".join([exp_time, access, type, resolution])
-						HttpClient.startExperiment(type, "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime())), exp_id, r = resolution)
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
 
