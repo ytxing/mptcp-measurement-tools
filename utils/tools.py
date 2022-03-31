@@ -134,16 +134,15 @@ def main():
     s = requests.Session()
     downloadFileProcessing = multiprocessing.Process(target=downloadFile, args=('test', 'http://47.100.85.48/trunk/test1M', s))
     # tcpdumpProcessing = multiprocessing.Process(target=tcpdumpGo, args=('test123.log', '47.100.85.48', nic_wlan))
-    cmd = 'echo a | sudo -S tcpdump -l -n -vv -i {} tcp and src host {} and port 80'.format(nic_wlan, '47.100.85.48')
+    cmd = 'echo a | sudo -S tcpdump -l -n  -i {} tcp and src host {} and port 80'.format(nic_wlan, '47.100.85.48')
     print(cmd)
-    w = open ('test.log', 'w')
+    # w = open ('test.log', 'w')
     # p = subprocess.Popen(cmd, shell=True, stdout=w, stderr=w, bufsize=1, universal_newlines=True)
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     time.sleep(1)
     downloadFileProcessing.start()
     # tcpdumpProcessing.start()
     downloadFileProcessing.join()
-    print('END')
     time.sleep(1)
     cmd = "sudo pkill tcpdump"
     os.system(cmd)
@@ -152,7 +151,7 @@ def main():
     print(byte_count)
     s.close()
     print('END')
-    w.close()
+    # w.close()
 
 
 if __name__ == '__main__':
