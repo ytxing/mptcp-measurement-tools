@@ -144,13 +144,18 @@ if __name__ == '__main__':
 					raise Exception("{} failed".format(cmd))
 			time.sleep(20)
 
-
 			for type in exp_types:
-				if type != "stream":
+				if type == "ping":
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
 					exp_id += "_".join([exp_time, access, type])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id)
+				elif type == "bulk":
+					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+					exp_id = "log_"
+					bulk_size = '10M'
+					exp_id += "_".join([exp_time, access, type, bulk_size])
+					HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
 				else:
 					for resolution in resolutions:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))

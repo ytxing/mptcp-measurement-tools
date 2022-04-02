@@ -260,7 +260,7 @@ if __name__ == '__main__':
         else:
             print('Wrong resolution: {}'.format(args.resolution))
     elif args.type == 'bulk':
-        exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
+        exp_id = '{}_{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, args.type, args.size)
         if args.size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:
             startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id, size = args.size)
         else:
