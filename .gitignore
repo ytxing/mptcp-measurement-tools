@@ -140,3 +140,7 @@ cython_debug/
 log/
 log*/
 log*
+
+result/
+result*/
+result*
