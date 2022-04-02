@@ -1,7 +1,9 @@
 import argparse
 import os
 import multiprocessing
+import threading
 import queue
+import subprocess
 import requests
 import tools
 import time
@@ -49,6 +51,7 @@ class MimicPlayer:
         while self.played_seg_count < self.total_seg_count:
             try:
                 start = time.time()
+                print('qsize: ' + str(self.replay_buffer.qsize()))
                 seg = self.replay_buffer.get(timeout=60)
             except:
                 self.logger.log("queue timeout, something WRONG")
@@ -57,7 +60,7 @@ class MimicPlayer:
                 self.timer_pause += time.time() - start
                 self.logger.log("pasue for {:.4f}s".format(time.time() - start))
                 if seg is not None and seg == 4:
-                    self.logger.log("Playing... seg_No.(4s):{}".format(self.played_seg_count))
+                    self.logger.log("Playing... seg_No.({}s):{}".format(seg, self.played_seg_count))
                     time.sleep(seg)
                     self.played_seg_count += 1
 
@@ -85,7 +88,7 @@ class MimicPlayer:
         ```
         '''
         server_url = self.url
-        self.PlayerProcessing = multiprocessing.Process(target=self.Player)
+        self.PlayerProcessing = threading.Thread(target=self.Player)
         self.replay_buffer.put(4)
         self.got_seg_count += 1
         
@@ -106,6 +109,7 @@ class MimicPlayer:
                 tools.downloadFile('bbb_30fps_{}_4s_{}.m4v'.format(self.resolution, self.got_seg_count), '{}/stream/bbb_30fps_{}_4s.m4v'.format(server_url, self.resolution), s, logger=self.logger)
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
+                self.logger.log("qsize:{}".format(self.replay_buffer.qsize()))
         
         self.PlayerProcessing.join()
         self.logger.log("Final Result {} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.resolution, self.timer_start, self.timer_all, self.timer_pause))
@@ -170,7 +174,7 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     if not os.path.exists(log_path):
         os.makedirs(log_path)
     log_file_path = os.path.join(log_path, log_file_name)
-    logger = tools.Logger(prefix='{}'.format(type), log_file_path=log_file_path)
+    logger = tools.Logger(prefix='{}'.format(type), log_file=log_file_path)
     # get local nic info
     config = tools.getConfigFromFile('nic_setup.config')
     if 'nic_lte' in config:
@@ -186,17 +190,26 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     logger.log('NIC CONFIG nic_lte:{} nic_wlan:{}'.format(nic_lte, nic_wlan))
     lte_bytes_start = tools.getRcvBytesOfIface(nic_lte)
     wlan_bytes_start = tools.getRcvBytesOfIface(nic_wlan)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -i {} src host {}'.format(nic_wlan, '47.100.85.48')
+    # dumpWlanProcess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -i {} src host {}'.format(nic_lte, '47.100.85.48')
+
+    cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_lte, url[7:])
+    logger.log(cmd)
+    dump_lte = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_wlan, url[7:])
+    logger.log(cmd)
+    dump_wlan = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    time.sleep(1)
     # start the experiment
     s = requests.Session()
     if type == 'bulk':
         GoBulkProcessing = multiprocessing.Process(target=GoBulk, args=(s, url, logger, size))
-        # ExpTimeoutProcessing = multiprocessing.Process(target=ExpTimeout, args=(100))
         GoBulkProcessing.start()
         GoBulkProcessing.join(timeout=EXP_TIMEOUT)
         if GoBulkProcessing.is_alive():
             logger.log('Timeout {}s GoBulk terminate'.format(EXP_TIMEOUT))
             GoBulkProcessing.terminate()
-        # GoBulk(s, url, logger, size=size)
     elif type == 'ping':
         GoPingProcessing = multiprocessing.Process(target=GoPing, args=(s, url, logger))
         GoPingProcessing.start()
@@ -213,10 +226,15 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
             GoStreamProcessing.terminate()
 
     s.close()
+    time.sleep(1)
+    lte_bytes_count = tools.getDumpedBytes(dump_lte.stdout)
+    wlan_bytes_count = tools.getDumpedBytes(dump_wlan.stdout)
+    logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_count))
+    logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_wlan, wlan_bytes_count))
     lte_bytes_end = tools.getRcvBytesOfIface(nic_lte)
     wlan_bytes_end = tools.getRcvBytesOfIface(nic_wlan)
-    logger.log('NIC BYTES ifname:{} lte_bytes_start:{} lte_bytes_end:{}'.format(nic_lte, lte_bytes_start, lte_bytes_end))
-    logger.log('NIC BYTES ifname:{} wlan_bytes_start:{} wlan_bytes_end:{}'.format(nic_wlan, wlan_bytes_start, wlan_bytes_end))
+    logger.log('NIC BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_end - lte_bytes_start))
+    logger.log('NIC BYTES ifname:{} total(bytes):{} '.format(nic_wlan, wlan_bytes_end - wlan_bytes_start))
 
 
 if __name__ == '__main__':

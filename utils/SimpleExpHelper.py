@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--time', help='time to change algorithms (min)', default=20)
     args = parser.parse_args()
     change_time = int(args.time) * 60
-    scheduler = ['default', 'roundrobin', 'redundant']
+    scheduler = ['default', 'roundrobin']
     cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
     
 

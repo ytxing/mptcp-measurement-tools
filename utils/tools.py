@@ -1,6 +1,12 @@
 import datetime
+from io import BufferedReader
+import os
+import re
+import signal
+import subprocess
 import requests
 import time
+import multiprocessing
 import sys
 
 def getConfigFromFile(file_name):
@@ -73,6 +79,7 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
     logger.log("content-length(B):{} get_response(ms):{:.3f}".format(total_len, getTimeMs() - time_start))
     curr_len = 0
     curr_len_last = 0
+
     for chunk in r.iter_content(chunk_size=512):
         if chunk:
             curr_len += len(chunk)
@@ -86,15 +93,35 @@ def downloadFile(name, url, s: requests.Session, logger: Logger=None):
                 curr_len_last = curr_len
                 logger.log('Loading name:{} size(B):{} percentage(%/{}):{:.3f} speed(mbps):{:.3f} interval(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_last))
                 time_last = getTimeMs()
-                if p == 100 or curr_len == total_len:
-                    break
     speed = curr_len / (time_now - time_start)
     speed *= 1000 * 8
     speed /= 1024*1024
     logger.log('Complete name:{} size(B):{} percentage(/{}):{:.3f} speed(mbps):{:.3f} total_time(ms):{:.3f}'.format(name, curr_len, int(total_len), p, speed, time_now - time_start))
     return r.status_code, total_len, (time_now - time_start), speed
+
+def getDumpedBytes(out: BufferedReader):
+    '''
+    getDumpedBytes() -> bytes
+    '''
+    cmd = "sudo pkill tcpdump"
+    os.system(cmd)
+    byte_count = 0
+    for line in iter(out.readline, ''):
+        print(line.strip())
+        if 'mptcp' in line: # 不确定这个单路径时候能不能用
+            # seq number match
+            match = re.search(r'len \d+', line)
+            if match:
+                l = match.group().split(' ')[1]
+                byte_count += int(l)
+    # tcpdumpProcessing.join()
+    print(byte_count)
+    return byte_count
     
-if __name__ == '__main__':
+def main():
+    # if file exists
+    if os.path.exists('test.log'):
+        os.remove('test.log')
     config = getConfigFromFile('nic_setup.config')
     for key in config:
         print(key, config[key])
@@ -102,3 +129,33 @@ if __name__ == '__main__':
         nic_lte = config['nic_lte']
         nic_wlan = config['nic_wlan']
     print('GOOD CONFIG nic_lte:{} nic_wlan:{}'.format(nic_lte, nic_wlan))
+    a = getRcvBytesOfIface(nic_wlan)
+    print(a)
+    s = requests.Session()
+    downloadFileProcessing = multiprocessing.Process(target=downloadFile, args=('test', 'http://47.100.85.48/trunk/test1M', s))
+    # tcpdumpProcessing = multiprocessing.Process(target=tcpdumpGo, args=('test123.log', '47.100.85.48', nic_wlan))
+    cmd = 'echo a | sudo -S tcpdump -l -n  -i {} tcp and src host {} and port 80'.format(nic_wlan, '47.100.85.48')
+    print(cmd)
+    # w = open ('test.log', 'w')
+    # p = subprocess.Popen(cmd, shell=True, stdout=w, stderr=w, bufsize=1, universal_newlines=True)
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    time.sleep(1)
+    downloadFileProcessing.start()
+    # tcpdumpProcessing.start()
+    downloadFileProcessing.join()
+    time.sleep(1)
+    cmd = "sudo pkill tcpdump"
+    os.system(cmd)
+    byte_count = getDumpedBytes(p.stdout)
+    # tcpdumpProcessing.join()
+    print(byte_count)
+    s.close()
+    print('END')
+    # w.close()
+
+
+if __name__ == '__main__':
+    main()
+    # cmd = "sudo pkill tcpdump"
+    # os.system(cmd)
+    # print(getRcvBytesOfIface(nic_wlan) - a)
