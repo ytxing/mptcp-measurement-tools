@@ -124,9 +124,10 @@ def getDataByKeywords(file, keywords: List[str], data_keys: List[str]):
         if yes:
             for data_key in data_keys:
                 print(line, data_key)
-                match = re.search(data_key + ':[0-9]+\.*[0-9]*', line)
+                match = re.search(data_key + ':(\S+)\s', line)
+                print(match.group(1))
                 if match:
-                    result.append(match.group())
+                    result.append(match.group().strip())
     print(result)
     return result
 
@@ -161,10 +162,16 @@ def run(dataDirectory, file_name_keys, result_keys):
             results = getDataByKeywords(file, ['Final Result'], [key])
             print(results)
             for result in results:
-                line += ",{}".format(re.search('[0-9]+\.*[0-9]*', result).group())
+                line += ",{}".format(result.split(':')[1].strip())
+        results = getDataByKeywords(file, ['NIC BYTES'], ['ifname', 'total\(bytes\)'])
+        for result in results:
+            line += ",{}".format(result.split(':')[1].strip())
+        print("line: ", line)
+        print(results)
         data.append(line)
 
     header = 'file_name,' + ','.join([key for key in result_keys])
+    header += ',ifname1,total(bytes),ifname2,total(bytes)'
     print(header)
     print('\n'.join(data))
     dir = './result-{}/'.format(time.strftime('%Y%m%d', time.localtime(time.time())))
@@ -210,8 +217,10 @@ def getResult24h(dataDirectory, file_name_keys):
     print('\n'.join(result_lines))
 
 if __name__ == '__main__':
-    # run(sys.argv[1], sys.argv[2].split(','), sys.argv[3].split(','))
-    # exit(1)
+
+    run(sys.argv[1], sys.argv[2].split(','), sys.argv[3].split(','))
+    # results = getDataByKeywords('/home/ytxing/mptcpwireless-measurement/utils/log_real/log-2022-04-02/log_2022-04-03_01-49-46_wlan_bulk_10M_default_lia.txt', ['NIC BYTES'], ['ifname', 'total\(bytes\)'])
+    exit(1)
     if len(sys.argv) != 4:
         print("Usage: python3 ProcessData.py <data directory> <file_name_key1,file_name_key2> <result_key1,result_key2>")
         sys.exit(1)

@@ -19,8 +19,9 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--time', help='time to change algorithms (min)', default=20)
     args = parser.parse_args()
     change_time = int(args.time) * 60
-    scheduler = ['default', 'roundrobin']
-    cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
+    scheduler = ['default', 'roundrobin', 'redundant']
+    cc = ['bbr']
+    # cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
     
 
     while True:
@@ -53,4 +54,6 @@ if __name__ == '__main__':
                     for line in f.readlines():
                         print('\033[1;32;40m{}\033[0m'.format(line.strip()))
                 print('sleep {}s'.format(change_time))
+                print('all ccs = {}'.format(','.join(cc)))
+                print('all schedulers = {}'.format(','.join(scheduler)))
                 time.sleep(change_time)
