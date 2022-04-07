@@ -144,3 +144,4 @@ log*
 result/
 result*/
 result*
+nic_setup.config
