@@ -189,55 +189,6 @@ def getResult24h(dataDirectory, file_name_keys):
     
     result_lines = []
     for h in range(24):
-        lte_speed = []
-        wlan_speed = []
-        multipath_speed = []
-        count = 0
-        for exp in exp_results:
-            if exp.time.tm_hour != h:
-                continue
-            if exp.exp_type == 'bulk':
-                exp.show()
-                if exp.path_config == 'lte':
-                    lte_speed.append(float(exp.speed))
-                elif exp.path_config == 'wlan':
-                    wlan_speed.append(float(exp.speed))
-                elif exp.path_config == 'multipath':
-                    multipath_speed.append(float(exp.speed))
-                count += 1
-        result_lines.append('{},{},{},{},{}'.format(h, np.mean(lte_speed), np.mean(wlan_speed), np.mean(multipath_speed), count))
-    
-    result_dir_today = './result-{}/'.format(time.strftime('%Y%m%d', time.localtime(time.time())))
-    if not os.path.exists(result_dir_today):
-        os.makedirs(result_dir_today)
-
-    with open(result_dir_today + 'result-overtime.csv'.format(time.strftime("%Y%m%d-%H%M%S", time.localtime())), 'w') as f:
-        f.write('hour,lte_speed,wlan_speed,multipath_speed,count\n')
-        f.write('\n'.join(result_lines))
-    print('\n'.join(result_lines))
-
-if __name__ == '__main__':
-
-    run(sys.argv[1], sys.argv[2].split(','), sys.argv[3].split(','))
-    # results = getDataByKeywords('/home/ytxing/mptcpwireless-measurement/utils/log_real/log-2022-04-02/log_2022-04-03_01-49-46_wlan_bulk_10M_default_lia.txt', ['NIC BYTES'], ['ifname', 'total\(bytes\)'])
-    exit(1)
-    if len(sys.argv) != 4:
-        print("Usage: python3 ProcessData.py <data directory> <file_name_key1,file_name_key2> <result_key1,result_key2>")
-        sys.exit(1)
-    dataDirectory = sys.argv[1]
-    if not os.path.isdir(dataDirectory):
-        print("Error: data directory does not exist")
-        sys.exit(1)
-    # 获取目录下所有文件
-    file_name_keys = sys.argv[2].split(',')
-    result_keys = sys.argv[3].split(',')
-    files = getFilesByKeywords(dataDirectory, file_name_keys)
-    exp_results: List[ExpResult] = []
-    for file in files:
-        exp_results.append(ExpResult(file, ['speed(mbps)']))
-    
-    result_lines = []
-    for h in range(24):
         for m in range(2):
             lte_speed = []
             wlan_speed = []
@@ -246,7 +197,7 @@ if __name__ == '__main__':
             for exp in exp_results:
                 if exp.time.tm_hour != h:
                     continue
-                if not (m * 30 <= exp.time.tm_min < (m + 1) * 30):
+                if not ((m * 30 ) <= exp.time.tm_min < (m+1) * 30):
                     continue
                 if exp.exp_type == 'bulk':
                     exp.show()
@@ -257,13 +208,34 @@ if __name__ == '__main__':
                     elif exp.path_config == 'multipath':
                         multipath_speed.append(float(exp.speed))
                     count += 1
-            result_lines.append('{}.{},{},{},{},{}'.format(h, m * 5, np.mean(lte_speed), np.mean(wlan_speed), np.mean(multipath_speed), count))
+            result_lines.append('{},{:.3f},{:.3f},{:.3f},{}'.format(h + m * 0.5, np.mean(lte_speed), np.mean(wlan_speed), np.mean(multipath_speed), count))
     
     result_dir_today = './result-{}/'.format(time.strftime('%Y%m%d', time.localtime(time.time())))
     if not os.path.exists(result_dir_today):
         os.makedirs(result_dir_today)
 
-    with open(result_dir_today + 'result-overtime.csv'.format(time.strftime("%Y%m%d-%H%M%S", time.localtime())), 'w') as f:
+    with open(result_dir_today + 'result-{}-overtime.csv'.format(time.strftime("%Y%m%d-%H%M%S", time.localtime())), 'w') as f:
         f.write('hour,lte_speed,wlan_speed,multipath_speed,count\n')
         f.write('\n'.join(result_lines))
     print('\n'.join(result_lines))
+
+if __name__ == '__main__':
+
+    run(sys.argv[1], sys.argv[2].split(','), sys.argv[3].split(','))
+    # getResult24h(sys.argv[1], sys.argv[2].split(','))
+    exit(1)
+    # if len(sys.argv) != 4:
+    #     print("Usage: python3 ProcessData.py <data directory> <file_name_key1,file_name_key2> <result_key1,result_key2>")
+    #     sys.exit(1)
+    # dataDirectory = sys.argv[1]
+    # if not os.path.isdir(dataDirectory):
+    #     print("Error: data directory does not exist")
+    #     sys.exit(1)
+    # # 获取目录下所有文件
+    # file_name_keys = sys.argv[2].split(',')
+    # result_keys = sys.argv[3].split(',')
+    # files = getFilesByKeywords(dataDirectory, file_name_keys)
+    # for file in files:
+    #     if 'bulk' in file and '10M' not in file:
+    #        print(file)
+    # print(len(files))

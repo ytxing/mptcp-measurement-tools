@@ -10,8 +10,9 @@ import HttpClient
 schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
 resolutions = ['3840x2160_12000k']
-exp_types = ['bulk', 'ping', 'stream']
-accesses = ["wlan", "lte", "multipath"]
+# exp_types = ['bulk', 'ping', 'stream']
+exp_types = ['bulk']
+accesses = ["multipath"]
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -147,18 +148,18 @@ if __name__ == '__main__':
 				if type == "ping":
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
-					exp_id += "_".join([exp_time, access, type])
+					exp_id += "_".join([exp_time, access, type, wifi_ssid])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id)
 				elif type == "bulk":
+					bulk_size = '10M'
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
-					bulk_size = '10M'
-					exp_id += "_".join([exp_time, access, type, bulk_size])
+					exp_id += "_".join([exp_time, access, type, bulk_size, wifi_ssid])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
 				else:
 					for resolution in resolutions:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
-						exp_id += "_".join([exp_time, access, type, resolution])
+						exp_id += "_".join([exp_time, access, type, resolution, wifi_ssid])
 						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
 
