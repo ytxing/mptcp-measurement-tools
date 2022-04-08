@@ -24,10 +24,10 @@ def GoBulk(s: requests.Session, url: str, logger: tools.Logger, size : str = "10
     return status_code, total_len, t, speed
 
 class MimicPlayer:
-    def __init__(self, s: requests.Session, url: str, r: str = '1920x1080_8000k', logger: tools.Logger = None):
+    def __init__(self, s: requests.Session, url: str, bitrate: str = '8000k', logger: tools.Logger = None):
         self.session = s
         self.url = url
-        self.resolution = r
+        self.bitrate = bitrate
         self.replay_buffer = queue.Queue(0)
         self.buffer_length = 10
         self.get_seg = True
@@ -77,14 +77,16 @@ class MimicPlayer:
         segment list:
         bbb_30fps.mpd
         bbb_30fps_0.m4v
-        bbb_30fps_320x180_400k_4s.m4v
-        bbb_30fps_480x270_600k_4s.m4v
-        bbb_30fps_640x360_1000k_4s.m4v
-        bbb_30fps_1024x576_2500k_4s.m4v
-        bbb_30fps_1280x720_4000k_4s.m4v
-        bbb_30fps_1920x1080_8000k_4s.m4v
-        bbb_30fps_3840x2160_12000k_4s.m4v
-        bbb_30fps-bbb_30fps.fbbb_30fps_3840x2160_12000k.mp4
+        stream_2500k_4s
+        stream_4000k_4s
+        stream_8000k_4s
+        stream_12000k_4s
+        stream_15000k_4s
+        stream_18000k_4s
+        stream_30000k_4s
+        stream_40000k_4s
+        stream_50000k_4s
+        stream_80000k_4s
         ```
         '''
         server_url = self.url
@@ -106,33 +108,35 @@ class MimicPlayer:
             qsize = self.replay_buffer.qsize()
             if qsize <= 0.5 * self.buffer_length:
                 self.logger.log("qsize:{} to get a seg".format(qsize))
-                tools.downloadFile('bbb_30fps_{}_4s_{}.m4v'.format(self.resolution, self.got_seg_count), '{}/stream/bbb_30fps_{}_4s.m4v'.format(server_url, self.resolution), s, logger=self.logger)
+                tools.downloadFile('stream_{}_4s_{}'.format(self.bitrate, self.got_seg_count), '{}/stream/stream_{}_4s'.format(server_url, self.bitrate), s, logger=self.logger)
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
                 self.logger.log("qsize:{}".format(self.replay_buffer.qsize()))
         
         self.PlayerProcessing.join()
-        self.logger.log("Final Result {} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.resolution, self.timer_start, self.timer_all, self.timer_pause))
+        self.logger.log("Final Result bitrate(bps):{} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.bitrate, self.timer_start, self.timer_all, self.timer_pause))
         return self.timer_start, self.timer_all, self.timer_pause
 
-def GoStream(s: requests.Session, url: str, logger: tools.Logger, r: str = '1920x1080_8000k'):
+def GoStream(s: requests.Session, url: str, logger: tools.Logger, bitrate: str = '8000k'):
     '''
     -> 1st_seg_time, total_time, pause_time
     ```
     segment list:
     bbb_30fps.mpd
     bbb_30fps_0.m4v
-    bbb_30fps_320x180_400k_4s.m4v
-    bbb_30fps_480x270_600k_4s.m4v
-    bbb_30fps_640x360_1000k_4s.m4v
-    bbb_30fps_1024x576_2500k_4s.m4v
-    bbb_30fps_1280x720_4000k_4s.m4v
-    bbb_30fps_1920x1080_8000k_4s.m4v
-    bbb_30fps_3840x2160_12000k_4s.m4v
-    bbb_30fps-bbb_30fps.fbbb_30fps_3840x2160_12000k.mp4
+    stream_2500k_4s
+    stream_4000k_4s
+    stream_8000k_4s
+    stream_12000k_4s
+    stream_15000k_4s
+    stream_18000k_4s
+    stream_30000k_4s
+    stream_40000k_4s
+    stream_50000k_4s
+    stream_80000k_4s
     ```
         '''
-    player = MimicPlayer(s, url, r, logger=logger)
+    player = MimicPlayer(s, url, bitrate, logger=logger)
     return player.start()
 
 def GoPing(s: requests.Session, url: str, logger: tools.Logger):
@@ -158,7 +162,7 @@ def GoPing(s: requests.Session, url: str, logger: tools.Logger):
     logger.log("Final Result ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', r: str='1920x1080_8000k', size: str = '10M'):
+def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', bitrate: str='8000k', size: str = '10M'):
     if not url:
         print("need a url")
         return
@@ -194,13 +198,13 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
     # dumpWlanProcess = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True)
     # cmd = 'echo a | sudo -S tcpdump -l -n -i {} src host {}'.format(nic_lte, '47.100.85.48')
 
-    cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_lte, url[7:])
-    logger.log(cmd)
-    dump_lte = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_wlan, url[7:])
-    logger.log(cmd)
-    dump_wlan = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    time.sleep(1)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_lte, url[7:])
+    # logger.log(cmd)
+    # dump_lte = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    # cmd = 'echo a | sudo -S tcpdump -l -n -v -i {} src host {} and port 80'.format(nic_wlan, url[7:])
+    # logger.log(cmd)
+    # dump_wlan = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    # time.sleep(1)
     # start the experiment
     s = requests.Session()
     if type == 'bulk':
@@ -218,7 +222,7 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
             logger.log('Timeout {}s GoPing terminate'.format(EXP_TIMEOUT))
             GoPingProcessing.terminate()
     elif type == 'stream':
-        GoStreamProcessing = multiprocessing.Process(target=GoStream, args=(s, url, logger, r))
+        GoStreamProcessing = multiprocessing.Process(target=GoStream, args=(s, url, logger, bitrate))
         GoStreamProcessing.start()
         GoStreamProcessing.join(timeout=EXP_TIMEOUT)
         if GoStreamProcessing.is_alive():
@@ -226,11 +230,11 @@ def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: 
             GoStreamProcessing.terminate()
 
     s.close()
-    time.sleep(1)
-    lte_bytes_count = tools.getDumpedBytes(dump_lte.stdout)
-    wlan_bytes_count = tools.getDumpedBytes(dump_wlan.stdout)
-    logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_count))
-    logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_wlan, wlan_bytes_count))
+    # time.sleep(1)
+    # lte_bytes_count = tools.getDumpedBytes(dump_lte.stdout)
+    # wlan_bytes_count = tools.getDumpedBytes(dump_wlan.stdout)
+    # logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_count))
+    # logger.log('DUMP BYTES ifname:{} total(bytes):{} '.format(nic_wlan, wlan_bytes_count))
     lte_bytes_end = tools.getRcvBytesOfIface(nic_lte)
     wlan_bytes_end = tools.getRcvBytesOfIface(nic_wlan)
     logger.log('NIC BYTES ifname:{} total(bytes):{} '.format(nic_lte, lte_bytes_end - lte_bytes_start))
@@ -252,6 +256,7 @@ if __name__ == '__main__':
     parser.add_argument('--inside', help = 'run from the inside', action = 'store_true', default = False)
     parser.add_argument('-u', '--url', help = 'url of server')
     parser.add_argument('-r', '--resolution', help = 'resolution of stream', default = '1920x1080_8000k')
+    parser.add_argument('-b', '--bitrate', help = 'bitrate of stream', default = '8000k', choices=['2500k', '4000k', '8000k', '12000k', '15000k', '18000k', '30000k', '40000k', '50000k', '80000k'])
     parser.add_argument('-a', '--all', help = 'all experiment', action = 'store_true')
     args = parser.parse_args()
     # from the outside
@@ -268,15 +273,14 @@ if __name__ == '__main__':
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
             exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
-            startExperiment(server_url, type, args.log_path, log_file_name = exp_id, r = args.resolution)
+            startExperiment(server_url, type, args.log_path, log_file_name = exp_id, r = args.bitrate)
     elif args.type == 'stream':
         
-        if args.resolution in ['320x180_400k', '480x270_600k', '640x360_1000k', '1024x576_2500k', '1280x720_4000k',
-                               '1920x1080_8000k', '3840x2160_12000k']:
-            exp_id = '{}_{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, args.type, args.resolution)
-            startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id, r = args.resolution)
+        if args.bitrate in ['2500k', '4000k', '8000k', '12000k', '15000k', '18000k', '30000k', '40000k', '50000k', '80000k']:
+            exp_id = '{}_{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, args.type, args.bitrate)
+            startExperiment(server_url, args.type, args.log_path, log_file_name = exp_id, bitrate=args.bitrate)
         else:
-            print('Wrong resolution: {}'.format(args.resolution))
+            print('Wrong bitrate: {}'.format(args.bitrate))
     elif args.type == 'bulk':
         exp_id = '{}_{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, args.type, args.size)
         if args.size in ['1000K', '1000M', '100K', '100M', '10B', '10K', '10M', '1K', '1M']:

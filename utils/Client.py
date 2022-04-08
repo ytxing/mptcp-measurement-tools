@@ -9,7 +9,7 @@ import HttpClient
 
 schedulers = ['default', 'roundrobin', 'redundant']
 congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
-resolutions = ['3840x2160_12000k']
+resolutions = ['12000k']
 # exp_types = ['bulk', 'ping', 'stream']
 exp_types = ['bulk']
 accesses = ["multipath"]
@@ -76,10 +76,14 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
 	parser.add_argument('-u', '--url', help = 'url')
+	parser.add_argument('--location', help = 'location of the server and client')
 
 	args = parser.parse_args()
 	if not args.url:
 		print("url is required (http://xxx.xxx.xxx.xxx:port)")
+		sys.exit(1)
+	if not args.location:
+		print("location is required (server-client)")
 		sys.exit(1)
 	url = args.url
 	log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
@@ -148,18 +152,18 @@ if __name__ == '__main__':
 				if type == "ping":
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
-					exp_id += "_".join([exp_time, access, type, wifi_ssid])
+					exp_id += "_".join([exp_time, args.location, access, type, wifi_ssid])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id)
 				elif type == "bulk":
 					bulk_size = '10M'
 					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 					exp_id = "log_"
-					exp_id += "_".join([exp_time, access, type, bulk_size, wifi_ssid])
+					exp_id += "_".join([exp_time, args.location, access, type, bulk_size, wifi_ssid])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
 				else:
 					for resolution in resolutions:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
-						exp_id += "_".join([exp_time, access, type, resolution, wifi_ssid])
+						exp_id += "_".join([exp_time, args.location, access, type, resolution, wifi_ssid])
 						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
 
