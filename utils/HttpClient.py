@@ -54,7 +54,7 @@ class MimicPlayer:
                 print('qsize: ' + str(self.replay_buffer.qsize()))
                 seg = self.replay_buffer.get(timeout=60)
             except:
-                self.logger.log("queue timeout, something WRONG")
+                self.logger.log("queue timeout(s):{} something WRONG".format(time.time() - start))
                 break
             else:
                 self.timer_pause += time.time() - start
@@ -104,17 +104,16 @@ class MimicPlayer:
         self.timer_start = time.time() - time_start 
         self.PlayerProcessing.start()
 
-        while self.got_seg_count < self.total_seg_count:
+        while self.got_seg_count < self.total_seg_count and not self.play_end:
             qsize = self.replay_buffer.qsize()
             if qsize <= 0.5 * self.buffer_length:
                 self.logger.log("qsize:{} to get a seg".format(qsize))
                 tools.downloadFile('stream_{}_4s_{}'.format(self.bitrate, self.got_seg_count), '{}/stream/stream_{}_4s'.format(server_url, self.bitrate), s, logger=self.logger)
                 self.got_seg_count += 1
                 self.replay_buffer.put(4)
-                self.logger.log("qsize:{}".format(self.replay_buffer.qsize()))
         
         self.PlayerProcessing.join()
-        self.logger.log("Final Result bitrate(bps):{} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f}".format(self.bitrate, self.timer_start, self.timer_all, self.timer_pause))
+        self.logger.log("Final Result bitrate(bps):{} 1st_seg_time(s):{:.4f} all(s):{:.4f} pause(s):{:.4f} got_segs:{}".format(self.bitrate, self.timer_start, self.timer_all, self.timer_pause, self.got_seg_count))
         return self.timer_start, self.timer_all, self.timer_pause
 
 def GoStream(s: requests.Session, url: str, logger: tools.Logger, bitrate: str = '8000k'):
