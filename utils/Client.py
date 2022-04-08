@@ -120,7 +120,7 @@ if __name__ == '__main__':
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
 						exp_id += "_".join([exp_time, access, type, bitrate])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = bitrate)
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate = bitrate)
 
 	while True:
 		for access in accesses:
@@ -165,5 +165,5 @@ if __name__ == '__main__':
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
 						exp_id += "_".join([exp_time, args.location, access, type, bitrate, wifi_ssid])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = bitrate)
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate=bitrate)
 
