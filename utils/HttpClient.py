@@ -273,7 +273,7 @@ if __name__ == '__main__':
     if args.all:
         for type in ['bulk', 'ping', 'stream']:
             exp_id = '{}_{}_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()), args.id, type)
-            startExperiment(server_url, type, args.log_path, log_file_name = exp_id, r = args.bitrate)
+            startExperiment(server_url, type, args.log_path, log_file_name = exp_id, bitrate = args.bitrate)
     elif args.type == 'stream':
         
         if args.bitrate in ['2500k', '4000k', '8000k', '12000k', '15000k', '18000k', '30000k', '40000k', '50000k', '80000k']:

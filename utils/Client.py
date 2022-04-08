@@ -7,12 +7,12 @@ import threading
 import tools
 import HttpClient
 
-schedulers = ['default', 'roundrobin', 'redundant']
-congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
-resolutions = ['12000k']
-# exp_types = ['bulk', 'ping', 'stream']
-exp_types = ['bulk']
-accesses = ["multipath"]
+# schedulers = ['default', 'roundrobin', 'redundant']
+# congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
+bitrates = ['50000k']
+exp_types = ['bulk', 'ping', 'stream']
+# exp_types = ['bulk']
+accesses = ["multipath", 'lte', 'wlan']
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -116,11 +116,11 @@ if __name__ == '__main__':
 					exp_id += "_".join([exp_time, access, type])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id)
 				else:
-					for resolution in resolutions:
+					for bitrate in bitrates:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
-						exp_id += "_".join([exp_time, access, type, resolution])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
+						exp_id += "_".join([exp_time, access, type, bitrate])
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = bitrate)
 
 	while True:
 		for access in accesses:
@@ -145,8 +145,8 @@ if __name__ == '__main__':
 				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
 				if subprocess.call(cmd, shell = True):
 					raise Exception("{} failed".format(cmd))
-			print('sleep 20s')
-			time.sleep(20)
+			print('sleep 5s')
+			time.sleep(5)
 
 			for type in exp_types:
 				if type == "ping":
@@ -161,9 +161,9 @@ if __name__ == '__main__':
 					exp_id += "_".join([exp_time, args.location, access, type, bulk_size, wifi_ssid])
 					HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
 				else:
-					for resolution in resolutions:
+					for bitrate in bitrates:
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
-						exp_id += "_".join([exp_time, args.location, access, type, resolution, wifi_ssid])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = resolution)
+						exp_id += "_".join([exp_time, args.location, access, type, bitrate, wifi_ssid])
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, r = bitrate)
 
