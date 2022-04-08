@@ -123,47 +123,53 @@ if __name__ == '__main__':
 						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate = bitrate)
 
 	while True:
-		for access in accesses:
-			if access == "multipath":
-				nicControl(nic_lte, "up")
-				nicControl(nic_wlan, "up")
-				print('sleep 5s')
-				time.sleep(5)
-				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-				if subprocess.call(cmd, shell = True):
-					raise Exception("{} failed".format(cmd))
-			elif access == "lte":
-				nicControl(nic_lte, "up")
-				nicControl(nic_wlan, "down")
-				print('sleep 5s')
-				time.sleep(5)
-			else:
-				nicControl(nic_lte, "down")
-				nicControl(nic_wlan, "up")
-				print('sleep 5s')
-				time.sleep(5)
-				cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-				if subprocess.call(cmd, shell = True):
-					raise Exception("{} failed".format(cmd))
-			print('sleep 5s')
-			time.sleep(5)
-
-			for type in exp_types:
-				if type == "ping":
-					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
-					exp_id = "log_"
-					exp_id += "_".join([exp_time, args.location, access, type, wifi_ssid])
-					HttpClient.startExperiment(url, type, log_path_today, exp_id)
-				elif type == "bulk":
-					bulk_size = '10M'
-					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
-					exp_id = "log_"
-					exp_id += "_".join([exp_time, args.location, access, type, bulk_size, wifi_ssid])
-					HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
+		try:
+			for access in accesses:
+				if access == "multipath":
+					nicControl(nic_lte, "up")
+					nicControl(nic_wlan, "up")
+					print('sleep 5s')
+					time.sleep(5)
+					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+					if subprocess.call(cmd, shell = True):
+						raise Exception("{} failed".format(cmd))
+				elif access == "lte":
+					nicControl(nic_lte, "up")
+					nicControl(nic_wlan, "down")
+					print('sleep 5s')
+					time.sleep(5)
 				else:
-					for bitrate in bitrates:
+					nicControl(nic_lte, "down")
+					nicControl(nic_wlan, "up")
+					print('sleep 5s')
+					time.sleep(5)
+					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+					if subprocess.call(cmd, shell = True):
+						raise Exception("{} failed".format(cmd))
+				print('sleep 5s')
+				time.sleep(5)
+
+				for type in exp_types:
+					if type == "ping":
 						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
 						exp_id = "log_"
-						exp_id += "_".join([exp_time, args.location, access, type, bitrate, wifi_ssid])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate=bitrate)
+						exp_id += "_".join([exp_time, args.location, access, type, wifi_ssid])
+						HttpClient.startExperiment(url, type, log_path_today, exp_id)
+					elif type == "bulk":
+						bulk_size = '10M'
+						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+						exp_id = "log_"
+						exp_id += "_".join([exp_time, args.location, access, type, bulk_size, wifi_ssid])
+						HttpClient.startExperiment(url, type, log_path_today, exp_id, size = bulk_size)
+					else:
+						for bitrate in bitrates:
+							exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+							exp_id = "log_"
+							exp_id += "_".join([exp_time, args.location, access, type, bitrate, wifi_ssid])
+							HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate=bitrate)
+		except Exception as e:
+			print(e)
+			print("continue...")
+			time.sleep(5)
+			continue
 
