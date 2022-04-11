@@ -125,7 +125,7 @@ def main():
 
 	while True:
 		explog_file = os.path.join(log_path_today, "explog.txt")
-		log = tools.Logger(prefix='explog', log_path=explog_file)
+		log = tools.Logger(prefix='explog', log_file=explog_file)
 
 		try:
 			for access in accesses:
