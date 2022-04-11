@@ -66,10 +66,15 @@ if __name__ == '__main__':
     # 获得网卡发送的流量
     while True:
         send_bytes_start = get_send_bytes(iface)
+        print('========================================================================')
         print('send_bytes_start:', send_bytes_start)
         print('sleep 20min')
         timer(10)
         send_bytes_end = get_send_bytes(iface)
         print('send_bytes_end:', send_bytes_end)
         print('send bytes in 20min:', send_bytes_end - send_bytes_start)
+        if send_bytes_end - send_bytes_start < 12345678:
+            print('send bytes in 20min is less than 12345678')
+            sendEmail('send bytes in 20min is less than 12345678')
+        print('========================================================================')
         # sendEmail('test')
