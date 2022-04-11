@@ -8,7 +8,7 @@ import requests
 import tools
 import time
 server_url = 'http://211.86.152.184:1880'
-EXP_TIMEOUT = 500 # max exp time(s)
+EXP_TIMEOUT = 300 # max exp time(s)
 
 def GoBulk(s: requests.Session, url: str, logger: tools.Logger, size : str = "10M"):
     '''
