@@ -23,6 +23,8 @@ server_IP = "47.100.85.48"
 server_user = "libserver"
 server_root = "root"
 
+log = tools.Logger()
+
 def setCongestionControl(congestion_control):
 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.ipv4.tcp_congestion_control=" + congestion_control
 	if subprocess.call(cmd, shell = True):
@@ -62,12 +64,11 @@ def setQdisc(congestion_control):
 def nicControl(nic_name, type):
 	cmd = "echo a | sudo -S ifconfig " + nic_name + ' ' + type
 	print(cmd)
-	if subprocess.call(cmd, shell = True):
+	if subprocess.call(cmd, shell = True, timeout=20):
 		raise Exception("{} failed".format(cmd))
 
 
-
-if __name__ == '__main__':
+def main():
 	#setCongestionControl(congestion_control)
 	#setScheduler(scheduler)
 	#setQdisc(congestion_control)
@@ -123,6 +124,9 @@ if __name__ == '__main__':
 						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate = bitrate)
 
 	while True:
+		explog_file = os.path.join(log_path_today, "explog.txt")
+		log = tools.Logger(prefix='explog', log_path=explog_file)
+
 		try:
 			for access in accesses:
 				if access == "multipath":
@@ -131,21 +135,29 @@ if __name__ == '__main__':
 					print('sleep 5s')
 					time.sleep(5)
 					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-					if subprocess.call(cmd, shell = True):
-						raise Exception("{} failed".format(cmd))
+					if subprocess.call(cmd, shell = True, timeout=20):
+						log.log("{} failed, continue".format(cmd))
+						continue
 				elif access == "lte":
 					nicControl(nic_lte, "up")
 					nicControl(nic_wlan, "down")
 					print('sleep 5s')
 					time.sleep(5)
 				else:
-					nicControl(nic_lte, "down")
-					nicControl(nic_wlan, "up")
+					try:
+						nicControl(nic_lte, "down")
+					except:
+						log.log("nicControl {} down failed, continue".format(nic_lte))
+					try:
+						nicControl(nic_wlan, "up")
+					except:
+						log.log("nicControl {} up failed, continue".format(nic_lte))
 					print('sleep 5s')
 					time.sleep(5)
 					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-					if subprocess.call(cmd, shell = True):
-						raise Exception("{} failed".format(cmd))
+					if subprocess.call(cmd, shell = True, timeout=20):
+						log.log("{} failed, continue".format(cmd))
+						continue
 				print('sleep 5s')
 				time.sleep(5)
 
@@ -173,3 +185,5 @@ if __name__ == '__main__':
 			time.sleep(5)
 			continue
 
+if __name__ == "__main__":
+	main()
