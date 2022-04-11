@@ -5,14 +5,14 @@ import tools
 from email.header import Header     # 用来设置邮件头和邮件主题 
 from email.mime.text import MIMEText    # 发送正文只包含简单文本的邮件，引入MIMEText即可 
 
-def get_send_bytes(iface):
+def get_recv_bytes(iface):
     with open('/proc/net/dev', 'r') as f:
         lines = f.readlines()
     for line in lines:
         if iface in line:
-            send_bytes = int(line.split()[9])
+            recv_bytes = int(line.split()[9])
             break
-    return send_bytes
+    return recv_bytes
 
 # 倒计时20分钟，显示进度条
 def timer(total_time):
@@ -60,20 +60,27 @@ def sendEmail(str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--iface', type=str, default='eth0', help='the interface to monitor')
+    parser.add_argument('--iface', type=str, default='eth0,eth1', help='the interfaces to monitor')
     args = parser.parse_args()
-    iface = args.iface
+    ifaces = args.iface.split(',')
+    if len(ifaces) < 2:
+        print('Error: at least two interfaces are needed')
+        exit(1)
     # 获得网卡发送的流量
     while True:
-        send_bytes_start = get_send_bytes(iface)
+        recv_bytes_start_0 = tools.getRcvBytesOfIface(ifaces[0])
+        recv_bytes_start_1 = tools.getRcvBytesOfIface(ifaces[1])
         print('========================================================================')
-        print('send_bytes_start:', send_bytes_start)
+        print('start:\t \niface0:{} recv:{}\niface1:{} recv:{}'.format(ifaces[0], recv_bytes_start_0, ifaces[1], recv_bytes_start_1))
         print('sleep 20min')
         timer(10)
-        send_bytes_end = get_send_bytes(iface)
-        print('send_bytes_end:', send_bytes_end)
-        print('send bytes in 20min:', send_bytes_end - send_bytes_start)
-        if send_bytes_end - send_bytes_start < 12345678:
+        recv_bytes_end_0 = tools.getRcvBytesOfIface(ifaces[0])
+        recv_bytes_end_1 = tools.getRcvBytesOfIface(ifaces[1])
+        print('end:\t \niface0:{} recv:{}\niface1:{} recv:{}'.format(ifaces[0], recv_bytes_end_0, ifaces[1], recv_bytes_end_1))
+        total_0 = recv_bytes_end_0 - recv_bytes_start_0
+        total_1 = recv_bytes_end_1 - recv_bytes_start_1
+        print('total:\t \niface0:{} total:{}\niface1:{} total:{}'.format(ifaces[0], total_0, ifaces[1], total_1))
+        if total_0 + total_1 < 12345678:
             print('send bytes in 20min is less than 12345678')
             sendEmail('send bytes in 20min is less than 12345678')
         print('========================================================================')
