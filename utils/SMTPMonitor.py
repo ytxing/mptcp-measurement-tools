@@ -60,7 +60,8 @@ def sendEmail(str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--iface', type=str, default='eth0,eth1', help='the interfaces to monitor')
+    parser.add_argument('-i', '--iface', type=str, help='the interfaces to monitor')
+    parser.add_argument('-n', '--name', type=str, help='my name')
     args = parser.parse_args()
     ifaces = args.iface.split(',')
     if len(ifaces) < 2:
@@ -73,15 +74,15 @@ if __name__ == '__main__':
         print('========================================================================')
         print('start:\t \niface0:{} recv:{}\niface1:{} recv:{}'.format(ifaces[0], recv_bytes_start_0, ifaces[1], recv_bytes_start_1))
         print('sleep 20min')
-        timer(10)
+        timer(20 * 60)
         recv_bytes_end_0 = tools.getRcvBytesOfIface(ifaces[0])
         recv_bytes_end_1 = tools.getRcvBytesOfIface(ifaces[1])
         print('end:\t \niface0:{} recv:{}\niface1:{} recv:{}'.format(ifaces[0], recv_bytes_end_0, ifaces[1], recv_bytes_end_1))
         total_0 = recv_bytes_end_0 - recv_bytes_start_0
         total_1 = recv_bytes_end_1 - recv_bytes_start_1
         print('total:\t \niface0:{} total:{}\niface1:{} total:{}'.format(ifaces[0], total_0, ifaces[1], total_1))
-        if total_0 + total_1 < 12345678:
-            print('send bytes in 20min is less than 12345678')
-            sendEmail('send bytes in 20min is less than 12345678')
+        if total_0 + total_1 < 23456789:
+            print('{} receive bytes in 20min is less than 12345678({})'.format(args.name, total_0 + total_1))
+            sendEmail('{} receive bytes in 20min is less than 12345678({})'.format(args.name, total_0 + total_1))
         print('========================================================================')
         # sendEmail('test')

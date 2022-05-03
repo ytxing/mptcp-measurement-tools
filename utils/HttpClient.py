@@ -7,6 +7,7 @@ import subprocess
 import requests
 import tools
 import time
+import SMTPMonitor
 server_url = 'http://211.86.152.184:1880'
 EXP_TIMEOUT = 300 # max exp time(s)
 
@@ -161,12 +162,17 @@ def GoPing(s: requests.Session, url: str, logger: tools.Logger):
     logger.log("Final Result ({}/10) avg_ping_time(ms):{:.3f}".format(count, all_t/count))
     return t1, all_t/count
 
-def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', bitrate: str='8000k', size: str = '10M'):
+def startExperiment(url: str, type: str, log_path: str='./log/', log_file_name: str='log.txt', bitrate: str='8000k', size: str = '10M') -> int:
     if not url:
         print("need a url")
-        return
+        return -1
     # get algorithms the server using
     req = requests.get('{}/server_status.txt'.format(url))
+    if req.status_code >= 300:
+        print("Server Error")
+        body = req.text
+        SMTPMonitor.sendEmail('Server Error', 'Server Error', body)
+        return -1
     for line in req.content.decode().split('\n'):
         if line.startswith('net.mptcp.mptcp_scheduler ='):
                 scheduler = line.split('=')[1].strip()
