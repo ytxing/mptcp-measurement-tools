@@ -2,7 +2,7 @@ import subprocess
 import os
 import time
 import argparse
-from SMTPMonitor import sendEmail
+import random
 # 检测同名进程是否存在,返回同名进程个数并杀死进程
 def check_process(name):
     cmd = "ps -ef | grep -v grep | grep -v sudo | grep -v SCREEN | grep -v screen | grep " + name + " | wc -l"
@@ -43,12 +43,16 @@ if __name__ == '__main__':
     status_file = os.path.join(pwd, 'server_status.txt')
 
     scheduler = ['default', 'roundrobin', 'redundant', 'ecf', 'blest', 'ols']
+    random.shuffle(scheduler)
     # scheduler = ['default', 'roundrobin', 'redundant', 'ecf', 'blest', 'ol' ,'ols']
     cc = ['bbr']
+    random.shuffle(cc)
     # cc = ['cubic', 'reno', 'bbr', 'lia', 'olia']
     
 
     while True:
+        random.shuffle(scheduler)
+        random.shuffle(cc)
         for scheduler_i in scheduler:
             for cc_i in cc:
                 cmd = []
