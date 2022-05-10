@@ -5,9 +5,9 @@ import argparse
 from SMTPMonitor import sendEmail
 # 检测同名进程是否存在,返回同名进程个数并杀死进程
 def check_process(name):
-    cmd = "ps -ef | grep -v grep | grep " + name + " | wc -l"
+    cmd = "ps -ef | grep -v grep | grep -v sudo | grep -v SCREEN | grep -v screen | grep " + name + " | wc -l"
     result = subprocess.getoutput(cmd)
-    if int(result) > 2:
+    if int(result) > 1:
         cmd = "ps -ef | grep -v grep | grep " + name + " | awk '{print $2}'"
         pid = subprocess.getoutput(cmd)
         print(cmd)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     name = os.path.basename(__file__)
     r = check_process(name)
-    if int(r) > 2:
+    if int(r) > 1:
         print('{} is running({}), killed them. Run again.'.format(name, r))
         exit(0)
     # args from cmd line
