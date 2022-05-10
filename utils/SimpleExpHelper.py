@@ -53,6 +53,10 @@ if __name__ == '__main__':
             for cc_i in cc:
                 cmd = []
                 cmd.append("sysctl net.mptcp.mptcp_scheduler={}".format(scheduler_i))
+                if scheduler_i == 'ol':
+                    cmd.append("sysctl net.mptcp.mptcp_debug=1")
+                else:
+                    cmd.append("sysctl net.mptcp.mptcp_debug=0")
                 cmd.append("sysctl net.ipv4.tcp_congestion_control={}".format(cc_i))
                 if cc_i == 'bbr':
                     cmd.append("sysctl net.core.default_qdisc=fq")
