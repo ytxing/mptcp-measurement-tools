@@ -17,8 +17,6 @@ exp_types = ['bulk', 'ping', 'stream']
 # exp_types = ['bulk']
 accesses = ["multipath", 'lte', 'wlan']
 
-exp_count = 0
-
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
 
@@ -84,10 +82,7 @@ def main(args):
 		elif key == "wifi_password":
 			wifi_password = config[key]
 
-	global exp_count
-
 	while True:
-		exp_count += 1
 		log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
 		if not os.path.exists(log_path_today):
 			os.mkdir(log_path_today)
@@ -152,15 +147,6 @@ def main(args):
 			time.sleep(5)
 			continue
 
-def fake_main():
-	count = 0
-	global exp_count
-	while True:
-		# print time
-		exp_count += 1
-		time.sleep(1)
-		print("main{} {} ".format(count, exp_count), time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end="\r")
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-u', '--url', help = 'url')
@@ -172,7 +158,6 @@ if __name__ == "__main__":
 		print("need python 3.8 or above")
 		sys.exit(1)
 	main_process = multiprocessing.Process(target=main, args=[args])
-	# main_process = multiprocessing.Process(target=fake_main)
 	main_process.start()
 	restart_flag = False
 	while True:
@@ -185,7 +170,6 @@ if __name__ == "__main__":
 				main_process.join(timeout=30)
 			main_process.close()
 			main_process = multiprocessing.Process(target=main, args=[args])
-			# main_process = multiprocessing.Process(target=fake_main)
 			print("restart")
 			main_process.start()
 			restart_flag = False
