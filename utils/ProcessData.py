@@ -137,10 +137,14 @@ def getResult(files: List[str], keywords: List[str], data_key: str):
     '''
     pass
 
-def run(dataDirectory, file_name_keys, result_keys):
+def run():
     if len(sys.argv) != 4:
         print("Usage: python3 ProcessData.py <data directory> <file_name_key1,file_name_key2> <result_key1,result_key2>")
         sys.exit(1)
+    
+    dataDirectory = sys.argv[1]
+    file_name_keys = sys.argv[2].split(',')
+    result_keys = sys.argv[3].split(',')
     if not os.path.isdir(dataDirectory):
         print("Error: data directory does not exist")
         sys.exit(1)
@@ -221,7 +225,7 @@ def getResult24h(dataDirectory, file_name_keys):
 
 if __name__ == '__main__':
 
-    run(sys.argv[1], sys.argv[2].split(','), sys.argv[3].split(','))
+    run()
     # getResult24h(sys.argv[1], sys.argv[2].split(','))
     exit(1)
     # if len(sys.argv) != 4:
