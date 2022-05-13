@@ -1,4 +1,7 @@
 import argparse
+from asyncio import constants
+from cmath import exp
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -14,14 +17,14 @@ exp_types = ['bulk', 'ping', 'stream']
 # exp_types = ['bulk']
 accesses = ["multipath", 'lte', 'wlan']
 
+exp_count = 0
+
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
 
 server_SSH_port = "22"
 server_IP = "47.100.85.48"
 
-server_user = "libserver"
-server_root = "root"
 
 log = tools.Logger()
 
@@ -34,24 +37,6 @@ def setScheduler(scheduler):
 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.mptcp.mptcp_scheduler=" + scheduler
 	if subprocess.call(cmd, shell = True):
 		raise Exception("{} failed".format(cmd))
-
-# #回显拥塞控制算法
-# def getCongestionControl() -> str:
-# 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.ipv4.tcp_congestion_control"
-# 	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-# 	buffer = p.stdout.read().decode()
-# 	buffer = buffer.split()[-1]
-# 	congestionControl = str(buffer)
-# 	return congestionControl
-
-# #回显调度算法
-# def getScheduler() -> str:
-# 	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.mptcp.mptcp_scheduler"
-# 	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE)
-# 	buffer = p.stdout.read().decode()
-# 	buffer = buffer.split()[-1]
-# 	scheduler = str(buffer)
-# 	return scheduler
 
 def setQdisc(congestion_control):
 	if congestion_control == "bbr":
@@ -67,19 +52,13 @@ def nicControl(nic_name, type):
 	if subprocess.call(cmd, shell = True, timeout=20):
 		raise Exception("{} failed".format(cmd))
 
+def getLogNum(log_path):
+	cmd = "ls " + log_path + " | wc -l"
+	log_num = subprocess.check_output(cmd, shell = True)
+	return int(log_num)
 
-def main():
-	#setCongestionControl(congestion_control)
-	#setScheduler(scheduler)
-	#setQdisc(congestion_control)
-	# nicControl("eth0", "down")
-	# 接收命令行参数
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
-	parser.add_argument('-u', '--url', help = 'url')
-	parser.add_argument('--location', help = 'location of the server and client (server-client)"')
+def main(args):
 
-	args = parser.parse_args()
 	if not args.url:
 		print("url is required (http://xxx.xxx.xxx.xxx:port)")
 		sys.exit(1)
@@ -87,9 +66,7 @@ def main():
 		print("location is required (server-client)")
 		sys.exit(1)
 	url = args.url
-	log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
-	if not os.path.exists(log_path_today):
-		os.mkdir(log_path_today)
+
 	config = tools.getConfigFromFile('nic_setup.config')
 	if config == None:
 		print("need a config file")
@@ -106,25 +83,15 @@ def main():
 			wifi_ssid = config[key]
 		elif key == "wifi_password":
 			wifi_password = config[key]
-		
-		if args.test:
-			print("run for test")
-			access = 'none'
-			for type in exp_types:
-				if type != "stream":
-					exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
-					exp_id = "log_"
-					exp_id += "_".join([exp_time, access, type])
-					HttpClient.startExperiment(url, type, log_path_today, exp_id)
-				else:
-					for bitrate in bitrates:
-						exp_time = '{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
-						exp_id = "log_"
-						exp_id += "_".join([exp_time, access, type, bitrate])
-						HttpClient.startExperiment(url, type, log_path_today, exp_id, bitrate = bitrate)
+
+	global exp_count
 
 	while True:
-		explog_file = os.path.join(log_path_today, "explog.txt")
+		exp_count += 1
+		log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
+		if not os.path.exists(log_path_today):
+			os.mkdir(log_path_today)
+		explog_file = os.path.join(log_path_today, "explog_error.txt")
 		log = tools.Logger(prefix='explog', log_file=explog_file)
 
 		try:
@@ -185,5 +152,55 @@ def main():
 			time.sleep(5)
 			continue
 
+def fake_main():
+	count = 0
+	global exp_count
+	while True:
+		# print time
+		exp_count += 1
+		time.sleep(1)
+		print("main{} {} ".format(count, exp_count), time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end="\r")
+
 if __name__ == "__main__":
-	main()
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-u', '--url', help = 'url')
+	parser.add_argument('--location', help = 'location of the server and client')
+	args = parser.parse_args()
+
+	# check python version > 3.8
+	if sys.version_info < (3, 8):
+		print("need python 3.8 or above")
+		sys.exit(1)
+	main_process = multiprocessing.Process(target=main, args=[args])
+	# main_process = multiprocessing.Process(target=fake_main)
+	main_process.start()
+	restart_flag = False
+	while True:
+		if restart_flag:
+			main_process.terminate()
+			main_process.join(timeout=30)
+			if main_process.is_alive():
+				print("restart failed")
+				main_process.kill()
+				main_process.join(timeout=30)
+			main_process.close()
+			main_process = multiprocessing.Process(target=main, args=[args])
+			# main_process = multiprocessing.Process(target=fake_main)
+			print("restart")
+			main_process.start()
+			restart_flag = False
+		
+		log_path_today = "./log-{}".format(time.strftime("%Y-%m-%d", time.localtime()))
+		if not os.path.exists(log_path_today):
+			os.mkdir(log_path_today)
+		explog_file = os.path.join(log_path_today, "monitor_error.txt")
+		log = tools.Logger(prefix='monitor', log_file=explog_file, log_type='a')
+
+		previous_exp_count = getLogNum(log_path_today)
+		print(getLogNum(log_path_today))
+		time.sleep(600)
+		if previous_exp_count == getLogNum(log_path_today):
+			log.log("no new experiment")
+			restart_flag = True
+
+
