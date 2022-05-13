@@ -9,7 +9,7 @@ import HttpClient
 
 # schedulers = ['default', 'roundrobin', 'redundant']
 # congestion_controls = ['cubic', 'reno', 'bbr', 'lia', 'olia']
-bitrates = ['50000k']
+bitrates = ['18000k']
 exp_types = ['bulk', 'ping', 'stream']
 # exp_types = ['bulk']
 accesses = ["multipath", 'lte', 'wlan']
@@ -77,7 +77,7 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--test', help = 'run for test', action = 'store_true', default = False)
 	parser.add_argument('-u', '--url', help = 'url')
-	parser.add_argument('--location', help = 'location of the server and client')
+	parser.add_argument('--location', help = 'location of the server and client (server-client)"')
 
 	args = parser.parse_args()
 	if not args.url:
@@ -135,7 +135,7 @@ def main():
 					print('sleep 5s')
 					time.sleep(5)
 					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-					if subprocess.call(cmd, shell = True, timeout=20):
+					if subprocess.call(cmd, shell = True, timeout=60):
 						log.log("{} failed, continue".format(cmd))
 						continue
 				elif access == "lte":
