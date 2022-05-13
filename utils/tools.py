@@ -36,11 +36,11 @@ def getRcvBytesOfIface(iface):
             return int(line.split()[1])
     return 0
 class Logger:
-    def __init__(self, prefix: str='nonprefix', log_file: str='log_empty', log_level: int=0):
+    def __init__(self, prefix: str='nonprefix', log_file: str='log_empty', log_level: int=0, log_type: str='w'):
         self.prefix = prefix
         self.log_file = log_file
         self.log_level = log_level
-        self.log_file_handle = open(self.log_file, 'w')
+        self.log_file_handle = open(self.log_file, log_type)
         self.start_time = time.time()
 
     def log(self, s: str, level: int=0):
