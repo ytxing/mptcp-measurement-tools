@@ -9,6 +9,35 @@ import time
 import multiprocessing
 import sys
 
+# check connection status with nmcli
+def checkConnection(connection, device):
+    '''
+    checkConnection() -> status
+    '''
+    got_connection = False
+    active_connection = False
+    id = None
+
+    cmd = "nmcli -t -f NAME,DEVICE,STATE,UUID connection show"
+    out = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    for line in iter(out.stdout.readline, ''):
+        if len(line.strip()) == 0:
+            out.stdout.close()
+            out.wait()
+            break
+        line = line.decode().strip()
+        if connection in line and device in line and 'activated' in line:
+            active_connection = True
+            got_connection = True
+            id = line.split(':')[3]
+            break
+        if connection in line and 'activated' not in line:
+            active_connection = False
+            got_connection = True
+            id = line.split(':')[3]
+    out.stdout.close()
+    return got_connection, active_connection, id
+
 def getConfigFromFile(file_name):
     '''
     getConfigFromFile() -> config
@@ -155,7 +184,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print(checkConnection("R4i9iqk6TSSlcTa9", "wlp2s0"))
     # cmd = "sudo pkill tcpdump"
     # os.system(cmd)
     # print(getRcvBytesOfIface(nic_wlan) - a)

@@ -15,7 +15,7 @@ import HttpClient
 bitrates = ['18000k']
 exp_types = ['bulk', 'ping', 'stream']
 # exp_types = ['bulk']
-accesses = ["multipath", 'lte', 'wlan']
+accesses = ['wlan', 'lte', "multipath", "multipath", "multipath", ]
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -49,6 +49,20 @@ def nicControl(nic_name, type):
 	print(cmd)
 	if subprocess.call(cmd, shell = True, timeout=20):
 		raise Exception("{} failed".format(cmd))
+
+def nmcliCreateNewConnection(wifi_ssid, wifi_password, nic_wlan):
+	cmd = "nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
+	if subprocess.call(cmd, shell = True, timeout=20):
+		log.log("{} failed".format(cmd))
+		return False
+	return True
+
+def nmcliBringUpConnection(uuid):
+	cmd = "nmcli connection up uuid {}".format(uuid)
+	if subprocess.call(cmd, shell = True, timeout=20):
+		log.log("{} failed".format(cmd))
+		return False
+	return True
 
 def getLogNum(log_path):
 	cmd = "ls " + log_path + " | wc -l"
@@ -96,9 +110,11 @@ def main(args):
 					nicControl(nic_wlan, "up")
 					print('sleep 5s')
 					time.sleep(5)
-					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-					if subprocess.call(cmd, shell = True, timeout=60):
-						log.log("{} failed, continue".format(cmd))
+					got_connection, active_connection, uuid = tools.checkConnection(wifi_ssid, nic_wlan)
+					if not got_connection:
+						if not nmcliCreateNewConnection(wifi_ssid, wifi_password, nic_wlan):
+							continue
+					if not nmcliBringUpConnection(uuid):
 						continue
 				elif access == "lte":
 					nicControl(nic_lte, "up")
@@ -116,10 +132,14 @@ def main(args):
 						log.log("nicControl {} up failed, continue".format(nic_lte))
 					print('sleep 5s')
 					time.sleep(5)
-					cmd = "echo a | sudo -S nmcli dev wifi connect '{}' password '{}' ifname {}".format(wifi_ssid, wifi_password, nic_wlan)
-					if subprocess.call(cmd, shell = True, timeout=20):
-						log.log("{} failed, continue".format(cmd))
+					got_connection, active_connection, uuid = tools.checkConnection(wifi_ssid, nic_wlan)
+					if not got_connection:
+						if not nmcliCreateNewConnection(wifi_ssid, wifi_password, nic_wlan):
+							continue
+					if not nmcliBringUpConnection(uuid):
 						continue
+
+					
 				print('sleep 5s')
 				time.sleep(5)
 
@@ -148,6 +168,10 @@ def main(args):
 			continue
 
 if __name__ == "__main__":
+	# run with sudo
+	if os.geteuid() != 0:
+		print("run with sudo")
+		sys.exit(1)
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-u', '--url', help = 'url')
 	parser.add_argument('--location', help = 'location of the server and client')
