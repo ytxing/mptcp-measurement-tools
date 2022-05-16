@@ -15,7 +15,7 @@ import HttpClient
 bitrates = ['18000k']
 exp_types = ['bulk', 'ping', 'stream']
 # exp_types = ['bulk']
-accesses = ['wlan', 'lte', "multipath", "multipath", "multipath", ]
+accesses = ["multipath", "multipath", "multipath", "multipath", "multipath", 'lte', 'wlan']
 
 # server_SSH_port = "1822"
 # server_IP = "211.86.152.184"
@@ -25,24 +25,6 @@ server_IP = "47.100.85.48"
 
 
 log = tools.Logger()
-
-def setCongestionControl(congestion_control):
-	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.ipv4.tcp_congestion_control=" + congestion_control
-	if subprocess.call(cmd, shell = True):
-		raise Exception("{} failed".format(cmd))
-
-def setScheduler(scheduler):
-	cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.mptcp.mptcp_scheduler=" + scheduler
-	if subprocess.call(cmd, shell = True):
-		raise Exception("{} failed".format(cmd))
-
-def setQdisc(congestion_control):
-	if congestion_control == "bbr":
-		cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.core.default_qdisc=fq"
-	else:
-		cmd = "ssh -p " + server_SSH_port + ' ' + server_root + '@' + server_IP + " sudo sysctl net.core.default_qdisc=pfifo_fast"
-	if subprocess.call(cmd, shell = True):
-		raise Exception("{} failed".format(cmd))
 
 def nicControl(nic_name, type):
 	cmd = "echo a | sudo -S ifconfig " + nic_name + ' ' + type
